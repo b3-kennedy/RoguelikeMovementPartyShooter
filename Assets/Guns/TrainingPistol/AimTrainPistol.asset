@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7608e025746142744b6a95de84b9ab6b, type: 3}
+  m_Name: AimTrainPistol
+  m_EditorClassIdentifier: 
+  fireType: 0
+  magSize: 999
+  fireRate: 20
+  damage: 10
+  adsSpeed: 10
+  reloadTime: 1
+  adsPos: {x: -0.262, y: 0.16, z: -0.217}
+  verticalRecoil: 2
+  horizontalRecoil: 1
+  recoilRecoveryDampening: 5
+  snappiness: 5
+  shootAnimations:
+  - {fileID: 7400000, guid: 96d30905093c094478ecaca4aabb7c4e, type: 2}
+  - {fileID: 7400000, guid: 5e9c05045d79ed64f8de9bbd7d7beb30, type: 2}
+  - {fileID: 7400000, guid: d76110767ccea0046a491017aa4f321b, type: 2}
+  reloadAnimation: {fileID: 7400000, guid: 97f53c6540c7d2048b8af510f6255250, type: 2}
+  sprintAnimation: {fileID: 7400000, guid: a5700733a06113c41a37676981d1d348, type: 2}
