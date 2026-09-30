@@ -23,14 +23,16 @@ public class Gun : MonoBehaviour
 
     LayerMask layerMask;
 
+    AmmoUI ammoUI;
+
     void Start()
     {
         recoilAnimation = GetComponentInParent<RecoilAnimation>();
-        ammo = gunData.magSize;
         layerMask = LayerMask.GetMask("Barrier");
         anim = GetComponentInChildren<Animator>();
+        ammoUI = GameManager.Instance.ammoUI.GetComponent<AmmoUI>();
     }
-    
+        
     public void SetHidden(bool value)
     {
         isHidden = value;
@@ -79,6 +81,7 @@ public class Gun : MonoBehaviour
     public void SetAmmo(int value)
     {
         ammo = value;
+        Debug.Log("????");
     }
     
     public int GetAmmo()
@@ -102,7 +105,7 @@ public class Gun : MonoBehaviour
         }
 
         ammo = gunData.magSize;
-
+        ammoUI.ammoText.text = ammo.ToString() + " / " + gunData.magSize.ToString();
         isReloading = false;
         anim.SetBool("Reload", false);
         GameManager.Instance.EnableReloadUI(false);
@@ -142,6 +145,7 @@ public class Gun : MonoBehaviour
         if(useAmmo)
         {
             ammo--;
+            ammoUI.ammoText.text = ammo.ToString() + " / " + gunData.magSize.ToString();
         }
         
         
@@ -153,6 +157,16 @@ public class Gun : MonoBehaviour
     public virtual void AlternateFire()
     {
         
+    }
+
+    void OnDisable()
+    {
+        Debug.Log($"[Gun] {name} disabled\n{System.Environment.StackTrace}");
+    }
+
+    void OnDestroy()
+    {
+        Debug.Log($"[Gun] {name} destroyed\n{System.Environment.StackTrace}");
     }
 
 }

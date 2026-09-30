@@ -81,7 +81,7 @@ Transform:
   m_GameObject: {fileID: 2605572328855211185}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.68, y: -0.98, z: 2.02}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -109,9 +109,9 @@ MonoBehaviour:
   bobSmoothSpeed: 10
   maxZRot: 7
   minZRot: 2
-  wiggleFrequency: 15
-  wiggleDecay: 5
-  wiggleAcceleration: 3
+  wiggleLength: 1
+  wiggleAttack: 0.34
+  wiggleFalloff: 2.5
   pause: 0
 --- !u!1 &3040499258772687866
 GameObject:
@@ -190,7 +190,7 @@ Transform:
   m_GameObject: {fileID: 5714580004245197282}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.68, y: -0.98, z: 2.02}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

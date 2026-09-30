@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: M4
   m_EditorClassIdentifier: 
   gunType: 1
+  gunName: M4
   fireType: 1
   magSize: 30
   fireRate: 10

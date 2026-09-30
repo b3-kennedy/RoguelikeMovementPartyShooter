@@ -165,10 +165,12 @@ public class Interact : NetworkBehaviour
 
             if (Input.GetKeyUp(KeyCode.Q))
             {
-                GameObject gun = gunHolder.GetChild(0).gameObject;
-                int id = gun.GetComponent<GunReferenceHolder>().gunID;
-                
-                DropGunRpc(id, OwnerClientId, throwForce);
+                Gun activeGun = playerGunManager.GetActiveGun();
+                if (activeGun == null) return;
+
+                int id = activeGun.GetComponent<GunReferenceHolder>().gunID;
+                int remainingAmmo = activeGun.GetAmmo();
+                DropGunRpc(id, OwnerClientId, throwForce, remainingAmmo);
                 chargeTime = 0f;
                 throwForce = 0f;
                 throwUI.SetActive(false);
@@ -205,15 +207,20 @@ public class Interact : NetworkBehaviour
 
                 if (gunReferenceHolder)
                 {
-                    if(playerGunManager.GetGun())
+                    if(playerGunManager.GetGun() && playerGunManager.GetGuns().Count >= 2)
                     {
-                        DropGunRpc(gunReferenceHolder.gunID, OwnerClientId, 0);
+                        var activeGunReference = playerGunManager.GetActiveGun().GetComponent<GunReferenceHolder>();
+                        int remainingAmmo = playerGunManager.GetActiveGun().GetAmmo();
+                        DropGunRpc(activeGunReference.gunID, OwnerClientId, 0, remainingAmmo);
                     }
                     if (gunReferenceHolder.GetComponent<OnPickup>())
                     {
                         gunReferenceHolder.GetComponent<OnPickup>().OnPickedUpRpc();
                     }
-                    SpawnGunRpc(gunReferenceHolder.gunID, OwnerClientId);
+
+                    int pickUpAmmo = gunReferenceHolder.GetComponent<WeaponPickup>().ammo;
+                    SpawnGunRpc(gunReferenceHolder.gunID, OwnerClientId, pickUpAmmo);
+                    GameManager.Instance.EnableAmmoUI(true);
                     DestroyGunPickupRpc(gunReferenceHolder.pickupInstanceID);
                 }
                 
@@ -233,13 +240,13 @@ public class Interact : NetworkBehaviour
         //if (NetworkManager.Singleton.LocalClientId != clientID) return;
         if(gunHolder)
         {
-            NetworkManager.ConnectedClients[clientID].PlayerObject.GetComponent<Interact>().gunHolder.GetChild(0).gameObject.SetActive(value);
+            NetworkManager.ConnectedClients[clientID].PlayerObject.GetComponent<Interact>().gunHolder.gameObject.SetActive(value);
         }
         
     }
 
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
-    void SpawnGunRpc(int gunID, ulong clientID)
+    void SpawnGunRpc(int gunID, ulong clientID, int ammo)
     {
         GameObject gunPrefab = GameManager.Instance.guns[gunID].gun;
         GameObject gun = Instantiate(gunPrefab, cam.GetComponent<NetworkPlayerCamera>().gunHoldPoint);
@@ -249,25 +256,47 @@ public class Interact : NetworkBehaviour
         var player = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<FirstPersonRigidbodyController>();
         player.OnPickupGun();
         Gun gunComp = gun.GetComponent<Gun>();
-        GetComponent<PlayerGunManager>().SetGun(gunComp);
+        GetComponent<PlayerGunManager>().SetGun(gunComp, ammo);
 
     }
 
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
-    void DropGunRpc(int gunID, ulong clientID, float force)
+    void DropGunRpc(int gunID, ulong clientID, float force, int remainingAmmo)
     {
         Transform holder = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<Interact>().gunHolder;
-        GameObject gun = holder.transform.GetChild(0).gameObject;
+
+        GameObject gun = null;
+        foreach (Transform child in holder)
+        {
+            var refHolder = child.GetComponent<GunReferenceHolder>();
+            if (refHolder == null || refHolder.gunID != gunID) continue;
+
+            if (gun == null || child.gameObject.activeSelf)
+                gun = child.gameObject;
+        }
+        if (gun == null) return;
+
         Vector3 gunPos = gun.transform.GetChild(0).position;
         Quaternion gunRot = gun.transform.GetChild(0).rotation;
         GameObject spawner = GameManager.Instance.guns[gunID].pickupObject;
+
+        if (NetworkManager.Singleton.LocalClientId == clientID)
+        {
+            var manager = GetComponent<PlayerGunManager>();
+            int index = manager.GetGuns().IndexOf(gun.GetComponent<Gun>());
+            if (index >= 0) manager.RemoveGun(index);
+        }
+
         Destroy(gun);
+        if(playerGunManager.GetGuns().Count <= 0)
+        {
+            GameManager.Instance.EnableAmmoUI(false);
+        }
+        
         GameObject spawned = Instantiate(spawner, gunPos, gunRot);
+        spawned.GetComponent<WeaponPickup>().ammo = remainingAmmo;
         spawned.GetComponent<Rigidbody>().AddForce(cam.transform.forward * force, ForceMode.Impulse);
         spawned.GetComponent<GunReferenceHolder>().SetPickupInstanceID(GameManager.Instance.nextPickupID++);
-        if (NetworkManager.Singleton.LocalClientId != clientID) return;
-        GetComponent<PlayerGunManager>().RemoveGun();
-        
     }
 
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
@@ -352,12 +381,14 @@ public class Interact : NetworkBehaviour
             {
                 if (room.canHaveGuns)
                 {
-                    playerGunManager.GetGun().SetHidden(false);
+                    gunHolder.gameObject.SetActive(true);
+                    GameManager.Instance.EnableAmmoUI(true);
                     ShowGunRpc(true, OwnerClientId);
                 }
                 else
                 {
-                    playerGunManager.GetGun().SetHidden(true);
+                    gunHolder.gameObject.SetActive(false);
+                    GameManager.Instance.EnableAmmoUI(false);
                     ShowGunRpc(false, OwnerClientId);
                 }
             }

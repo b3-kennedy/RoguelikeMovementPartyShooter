@@ -41,6 +41,8 @@ public class GunSway : MonoBehaviour
     private void Update()
     {
         if (!networkObject.IsOwner) return;
+        if (!gun) return;
+        
         float targetMultiplier = gun.GetManager().isAiming() ? aimMultiplier : 1f;
         swayMultiplier = Mathf.Lerp(swayMultiplier, targetMultiplier, Time.deltaTime * dampenSpeed);
 

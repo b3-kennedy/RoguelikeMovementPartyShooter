@@ -1,14 +1,18 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerGunManager : NetworkBehaviour
 {
 
     Gun gun;
+
+    List<Gun> guns = new List<Gun>();
     private float nextFireTime;
     RecoilAnimation recoilAnimation;
 
+    public NetworkVariable<int> activeGunIndex;
     FirstPersonRigidbodyController controller;
     private Vector3 hipPosition;
 
@@ -20,8 +24,11 @@ public class PlayerGunManager : NetworkBehaviour
     bool aim;
     Camera cam;
 
+    AmmoUI ammoUI;
+
     int ammoBeforeReload;
 
+    GunBob bob;
     private Coroutine reloadCoroutine;
 
     bool useAmmo = true;
@@ -31,51 +38,59 @@ public class PlayerGunManager : NetworkBehaviour
     void Start()
     {
         controller = GetComponent<FirstPersonRigidbodyController>();
+        ammoUI = GameManager.Instance.ammoUI.GetComponent<AmmoUI>();
     }
 
-    public void SetGun(Gun newGun)
+    public void SetGun(Gun newGun, int ammo)
     {
-        if(!cam)
-        {
-            cam = GetComponent<Interact>().cam;
-        }
+        if (!cam) cam = GetComponent<Interact>().cam;
 
-        gun = newGun;
-        gun.SetManager(this);
-        gun.SetCamera(cam);
-        anim = gun.GetComponentInChildren<Animator>();
-        recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
-        recoilAnimation.SetPlayerGunManager(this);
-        recoilAnimation.OnPickup();
-        hipPosition = gun.transform.localPosition;
-        nextFireTime = 0f;
+        newGun.SetManager(this);
+        newGun.SetCamera(cam);
+        newGun.GetComponentInChildren<GunBob>().enabled = true;
+        newGun.SetAmmo(ammo);
+        ammoUI.gunName.text = newGun.gunData.gunName;
+        ammoUI.ammoText.text = ammo.ToString() + " / " + newGun.gunData.magSize;
 
-        foreach (var layerName in gunLayers)
-        {
-            int index = anim.GetLayerIndex(layerName);
-            if (index >= 0) anim.SetLayerWeight(index, 0f);
-        }
+        if (guns.Count < 2) guns.Add(newGun);
 
-
-        switch (newGun.gunData.gunType)
-        {
-            case GunData.GunType.PISTOL:
-                anim.SetLayerWeight(anim.GetLayerIndex("Pistol"), 1f);
-                break;
-            case GunData.GunType.RIFLE:
-                anim.SetLayerWeight(anim.GetLayerIndex("Rifle"), 1f);
-                break;
-            case GunData.GunType.SHOTGUN:
-                break;
-            case GunData.GunType.SNIPER:
-                break;
-            case GunData.GunType.SMG:
-                break;
-        }
-
-        Debug.Log($"Picked up {newGun.name}");
+        EquipGun(newGun, isPickup: true);
     }
     
+    public List<Gun> GetGuns()
+    {
+        return guns;
+    }
+    
+    public GunBob GetGunBob()
+    {
+        return bob;
+    }
+
+    public Gun GetActiveGun()
+    {
+        return gun;
+    }
+
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
+    void SetActiveGunRpc(int index)
+    {
+        activeGunIndex.Value = index;
+    }
+    
+    public int GetActiveGunIndex()
+    {
+        for (int i = 0; i < guns.Count; i++)
+        {
+            var gun = guns[i];
+            if (gun.gameObject.activeSelf)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public void CanFire(bool value)
     {
         canFire = value;
@@ -105,14 +120,72 @@ public class PlayerGunManager : NetworkBehaviour
     {
         return canFire;
     }
-    
-    public void RemoveGun()
+
+    public void RemoveGun(int index)
     {
-        gun.SetManager(null);
-        gun.SetCamera(null);
-        gun = null;
+        Debug.Log($"RemoveGun index={index} count={guns.Count} equipped={(gun ? gun.name : "null")}");
+        if (index < 0 || index >= guns.Count) return;
+
+        Gun removed = guns[index];
+        bool wasEquipped = (removed == gun);
+
+        if (wasEquipped) CancelReload();
+
+        guns.RemoveAt(index);
+
+        if (removed) // false if already destroyed
+        {
+            removed.SetManager(null);
+            removed.SetCamera(null);
+        }
+
+        if (!wasEquipped) return;
+
+        if (guns.Count > 0)
+        {
+            EquipGun(guns[0]);
+        }
+        else
+        {
+            gun = null;
+            anim = null;
+            recoilAnimation = null;
+        }
     }
-    
+
+    void EquipGun(Gun g, bool isPickup = false)
+    {
+        if (gun && gun != g)
+        {
+            gun.SetIsFiring(false);
+            gun.gameObject.SetActive(false);
+        }
+
+        gun = g;
+        gun.gameObject.SetActive(true);
+
+        anim = gun.GetComponentInChildren<Animator>();
+        recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
+        recoilAnimation.SetPlayerGunManager(this);
+
+        bob = gun.GetComponentInChildren<GunBob>();
+        bob.enabled = true;
+
+        if (isPickup)
+        {
+            recoilAnimation.OnPickup();
+        }
+
+        gun.transform.localPosition = hipPosition;
+        nextFireTime = 0f;
+
+        SetAnimLayer(gun);
+
+        if (IsOwner) SetActiveGunRpc(guns.IndexOf(gun));
+        ammoUI.gunName.text = GetActiveGun().gunData.gunName;
+        ammoUI.ammoText.text = GetActiveGun().GetAmmo().ToString() + " / " + GetActiveGun().gunData.magSize;
+    }
+
     public bool isAiming()
     {
         return aim;
@@ -127,11 +200,62 @@ public class PlayerGunManager : NetworkBehaviour
     {
         return gun;
     }
+    
+    void SetAnimLayer(Gun g)
+    {
+        foreach (var layerName in gunLayers)
+        {
+            int index = anim.GetLayerIndex(layerName);
+            if (index >= 0) anim.SetLayerWeight(index, 0f);
+        }
+
+        switch (g.gunData.gunType)
+        {
+            case GunData.GunType.PISTOL:
+                anim.SetLayerWeight(anim.GetLayerIndex("Pistol"), 1f);
+                break;
+            case GunData.GunType.RIFLE:
+                anim.SetLayerWeight(anim.GetLayerIndex("Rifle"), 1f);
+                break;
+            case GunData.GunType.SHOTGUN:
+                break;
+            case GunData.GunType.SNIPER:
+                break;
+            case GunData.GunType.SMG:
+                break;
+        }
+    }
+
+    void SwitchGun()
+    {
+        if (guns.Count < 2 || !gun) return;
+
+        CancelReload();
+
+        int next = (guns.IndexOf(gun) + 1) % guns.Count;
+        EquipGun(guns[next]);
+    }
+
+    void CancelReload()
+    {
+        if (!gun || !gun.IsReloading()) return;
+
+        if (reloadCoroutine != null) StopCoroutine(reloadCoroutine);
+        GameManager.Instance.EnableReloadUI(false);
+        anim.SetBool("Reload", false);
+        gun.SetAmmo(ammoBeforeReload);
+        gun.SetReloading(false);
+    }
 
     // Update is called once per frame
     void Update()
     {
         if (!gun) return;
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SwitchGun();
+        }
         
         if(Input.GetKeyDown(KeyCode.R) && !gun.IsReloading() && !controller.IsSprinting())
         {
@@ -141,11 +265,7 @@ public class PlayerGunManager : NetworkBehaviour
 
         if (gun.IsReloading() && controller.IsSprinting())
         {
-            StopCoroutine(reloadCoroutine);
-            GameManager.Instance.EnableReloadUI(false);
-            anim.SetBool("Reload", false);
-            gun.SetAmmo(ammoBeforeReload);
-            gun.SetReloading(false);
+            CancelReload();
         }
 
         if (!gun.IsReloading() && canFire)

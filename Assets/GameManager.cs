@@ -26,6 +26,8 @@ public class GameManager : NetworkBehaviour
 
     public GameObject throwUI;
     public GameObject reloadUI;
+
+    public GameObject ammoUI;
     
     bool canSpawnRooms = true;
 
@@ -80,6 +82,11 @@ public class GameManager : NetworkBehaviour
     public void EnableReloadUI(bool value)
     {
         reloadUI.SetActive(value);
+    }
+    
+    public void EnableAmmoUI(bool value)
+    {
+        ammoUI.SetActive(value);
     }
     
     public void UpdateReloadProgress(float progress)

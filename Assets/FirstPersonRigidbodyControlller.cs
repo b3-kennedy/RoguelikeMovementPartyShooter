@@ -48,7 +48,7 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     private float pitch = 0f;
     private float yaw = 0f;
 
-    private GunBob gunBob;
+    private GunBob gunBob => gunManager != null ? gunManager.GetGunBob() : null;
 
     Interact interact;
     bool isSprinting;
@@ -180,11 +180,11 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
                 listener.enabled = true;
             }
 
-            gunBob = playerCamera.GetComponentInChildren<GunBob>();
-            if (gunBob != null)
-            {
-                gunBob.enabled = true;
-            }
+            // gunBob = playerCamera.GetComponentInChildren<GunBob>();
+            // if (gunBob != null)
+            // {
+            //     gunBob.enabled = true;
+            // }
         }
         else
         {
@@ -202,11 +202,11 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     
     public void OnPickupGun()
     {
-        gunBob = playerCamera.GetComponentInChildren<GunBob>();
-        if (gunBob != null)
-        {
-            gunBob.enabled = true;
-        }
+        // gunBob = playerCamera.GetComponentInChildren<GunBob>();
+        // if (gunBob != null)
+        // {
+        //     gunBob.enabled = true;
+        // }
     }
     
     public bool IsSprinting()

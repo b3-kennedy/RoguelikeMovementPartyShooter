@@ -6,6 +6,8 @@ public class GunData : ScriptableObject
 
     public enum GunType { PISTOL, RIFLE, SHOTGUN, SNIPER, SMG };
     public GunType gunType;
+
+    public string gunName;
     public enum FireType {SINGLE, AUTO, BURST};
     public FireType fireType;
     public int magSize;
