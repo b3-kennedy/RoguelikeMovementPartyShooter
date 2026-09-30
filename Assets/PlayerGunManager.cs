@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Analytics;
 
 public class PlayerGunManager : NetworkBehaviour
 {
@@ -56,7 +57,7 @@ public class PlayerGunManager : NetworkBehaviour
 
         EquipGun(newGun, isPickup: true);
     }
-    
+        
     public List<Gun> GetGuns()
     {
         return guns;
@@ -163,7 +164,6 @@ public class PlayerGunManager : NetworkBehaviour
 
         gun = g;
         gun.gameObject.SetActive(true);
-
         anim = gun.GetComponentInChildren<Animator>();
         recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
         recoilAnimation.SetPlayerGunManager(this);
@@ -181,7 +181,9 @@ public class PlayerGunManager : NetworkBehaviour
 
         SetAnimLayer(gun);
 
-        if (IsOwner) SetActiveGunRpc(guns.IndexOf(gun));
+       // if (IsOwner) SetActiveGunRpc(guns.IndexOf(gun));
+       
+        SwitchWeaponRpc(GetActiveGunIndex(), OwnerClientId);
         ammoUI.gunName.text = GetActiveGun().gunData.gunName;
         ammoUI.ammoText.text = GetActiveGun().GetAmmo().ToString() + " / " + GetActiveGun().gunData.magSize;
     }
@@ -247,9 +249,32 @@ public class PlayerGunManager : NetworkBehaviour
         gun.SetReloading(false);
     }
 
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    void SwitchWeaponRpc(int index, ulong clientID)
+    {
+        SwitchWeaponClientRpc(index, clientID);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    void SwitchWeaponClientRpc(int index, ulong clientID)
+    {
+        if (NetworkManager.Singleton.LocalClientId == clientID) return;
+    
+        var player = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject;
+        var camera = player.GetComponent<Interact>().cam;
+        var weaponHolder = camera.GetComponent<NetworkPlayerCamera>().transform;
+        for (int i = 0; i < weaponHolder.childCount; i++)
+        {
+            weaponHolder.GetChild(0).GetChild(i).gameObject.SetActive(i == index);
+        }
+    }
+
+
+
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner) return;
         if (!gun) return;
 
         if (Input.GetKeyDown(KeyCode.Alpha1))

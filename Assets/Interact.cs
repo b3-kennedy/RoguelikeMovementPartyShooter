@@ -256,7 +256,7 @@ public class Interact : NetworkBehaviour
         var player = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<FirstPersonRigidbodyController>();
         player.OnPickupGun();
         Gun gunComp = gun.GetComponent<Gun>();
-        GetComponent<PlayerGunManager>().SetGun(gunComp, ammo);
+        player.GetComponent<PlayerGunManager>().SetGun(gunComp, ammo);
 
     }
 
