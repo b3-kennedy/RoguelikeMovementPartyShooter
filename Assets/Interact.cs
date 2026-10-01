@@ -211,7 +211,11 @@ public class Interact : NetworkBehaviour
                     {
                         var activeGunReference = playerGunManager.GetActiveGun().GetComponent<GunReferenceHolder>();
                         int remainingAmmo = playerGunManager.GetActiveGun().GetAmmo();
-                        DropGunRpc(activeGunReference.gunID, OwnerClientId, 0, remainingAmmo);
+                        if(!gunReferenceHolder.GetComponent<OnPickup>())
+                        {
+                            DropGunRpc(activeGunReference.gunID, OwnerClientId, 0, remainingAmmo);
+                        }
+                        
                     }
                     if (gunReferenceHolder.GetComponent<OnPickup>())
                     {
@@ -240,7 +244,11 @@ public class Interact : NetworkBehaviour
         //if (NetworkManager.Singleton.LocalClientId != clientID) return;
         if(gunHolder)
         {
-            NetworkManager.ConnectedClients[clientID].PlayerObject.GetComponent<Interact>().gunHolder.gameObject.SetActive(value);
+            Transform gunHolderTransform = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<Interact>().gunHolder;
+            for (int i = 0; i < gunHolderTransform.GetChild(0).childCount; i++)
+            {
+                gunHolderTransform.GetChild(0).GetChild(i).gameObject.SetActive(value);
+            }
         }
         
     }
@@ -369,6 +377,8 @@ public class Interact : NetworkBehaviour
         }
     }
 
+
+
     void OnTriggerExit(Collider other)
     {
         if (!IsOwner) return;
@@ -379,15 +389,28 @@ public class Interact : NetworkBehaviour
             room.PlayerEntered();
             if (playerGunManager.GetGun())
             {
+                if(room.roomType == Room.RoomType.AIM_TRAIN)
+                {
+                    playerGunManager.CanSwitchGuns(false);
+                    for (int i = 0; i < gunHolder.GetChild(0).childCount; i++)
+                    {
+                       if (gunHolder.GetChild(0).GetChild(i).GetComponent<OnPickup>())
+                       {
+                           Destroy(gunHolder.GetChild(0).GetChild(i).gameObject);
+                       }
+                    }
+                    
+
+                }
                 if (room.canHaveGuns)
                 {
-                    gunHolder.gameObject.SetActive(true);
+                    playerGunManager.SetGunsVisible(true);
                     GameManager.Instance.EnableAmmoUI(true);
                     ShowGunRpc(true, OwnerClientId);
                 }
                 else
                 {
-                    gunHolder.gameObject.SetActive(false);
+                    playerGunManager.SetGunsVisible(false);
                     GameManager.Instance.EnableAmmoUI(false);
                     ShowGunRpc(false, OwnerClientId);
                 }
@@ -398,6 +421,12 @@ public class Interact : NetworkBehaviour
 
         if (other.CompareTag("Exit"))
         {
+            Room room = other.GetComponentInParent<Room>();
+            if (room.roomType == Room.RoomType.AIM_TRAIN)
+            {
+                playerGunManager.CanFire(true);
+                playerGunManager.CanSwitchGuns(true);
+            }
             other.GetComponentsInParent<Room>()[0].PlayerExited();
         }
     }

@@ -86,12 +86,11 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     // Slide steering
     [SerializeField] private float slideControl = 5f;
     [SerializeField] private float airSlideControl = 1.5f;
-
-    // How much speed is lost when turning
     [SerializeField] private float slideTurnLoss = 8f;
-
-    // Minimum amount of speed that can be lost from steering
     [SerializeField] private float minTurnMultiplier = 0.25f;
+    [SerializeField] private float slideLandingLoss = 0.5f;   // speed lost per unit of impact speed
+    [SerializeField] private float minSlideLandSpeed = 4f;     // ignore small hops
+    [SerializeField] private float flatLandAngle = 5f;   // max slope angle that counts as "flat"
 
     private void Awake()
     {
@@ -408,10 +407,14 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     {
         Landed?.Invoke(impactSpeed);
         previousWallNormal = Vector3.zero;
-        // Example hooks:
-        // gunManager.GetAnimator()?.SetTrigger("Land");
-        // gunBob?.Kick(impactSpeed);
-        // play landing sound, camera dip, etc.
+
+        bool landedOnFlat = Vector3.Angle(groundNormal, Vector3.up) <= flatLandAngle;
+
+        if (isSliding && landedOnFlat && impactSpeed >= minSlideLandSpeed)
+        {
+            float minSlide = HasCeiling() ? moveSpeed * 0.5f : 0f;
+            slideSpeed = Mathf.Max(slideSpeed - impactSpeed * slideLandingLoss, minSlide);
+        }
     }
 
     private void HandleSlideSteering()
@@ -514,6 +517,18 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
                     minSlide
                 );
             }
+            
+
+            if (!isGrounded && !HasCeiling())
+            {
+                // Cast along the slide direction; if a wall is right in front, end the slide
+                if (CheckWall(slideDir, out RaycastHit wallHit) &&
+                    Vector3.Angle(wallHit.normal, Vector3.up) > maxSlopeAngle)
+                {
+                    StopSlide();
+                    return;
+                }
+            }
 
             // -----------------------------
             // STEERING
@@ -545,7 +560,7 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
             // -----------------------------
             // APPLY VELOCITY
             // -----------------------------
-
+            
             gunManager.CanFire(true);
             gunManager.CanAim(true);
 
@@ -669,15 +684,13 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     {
         Vector3[] directions =
         {
-        playerObject.forward,
-        -playerObject.forward,
         playerObject.right,
         -playerObject.right,
 
-        (playerObject.forward + playerObject.right).normalized,
-        (playerObject.forward - playerObject.right).normalized,
-        (-playerObject.forward + playerObject.right).normalized,
-        (-playerObject.forward - playerObject.right).normalized
+        // (playerObject.forward + playerObject.right).normalized,
+        // (playerObject.forward - playerObject.right).normalized,
+        // (-playerObject.forward + playerObject.right).normalized,
+        // (-playerObject.forward - playerObject.right).normalized
     };
 
         foreach (Vector3 direction in directions)

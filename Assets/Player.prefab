@@ -106,8 +106,8 @@ MonoBehaviour:
   slideCameraDrop: 0.5
   slideCameraSpeed: 12
   minAirSlideSpeed: 6
-  slopeAcceleration: 30
-  maxSlideSpeed: 100
+  slopeAcceleration: 50
+  maxSlideSpeed: 1000
   slideControl: 0.5
   airSlideControl: 0.5
   slideTurnLoss: 0
@@ -277,6 +277,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  activeGunIndex:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!1 &3664658379125169228
 GameObject:
   m_ObjectHideFlags: 0

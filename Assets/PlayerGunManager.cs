@@ -22,15 +22,20 @@ public class PlayerGunManager : NetworkBehaviour
 
     Animator anim;
 
+    bool canSwitchGuns = true;
     bool aim;
     Camera cam;
 
     AmmoUI ammoUI;
+    
+    Transform gunModel;
 
     int ammoBeforeReload;
 
     GunBob bob;
     private Coroutine reloadCoroutine;
+
+    bool gunsAreHidden;
 
     bool useAmmo = true;
 
@@ -57,6 +62,16 @@ public class PlayerGunManager : NetworkBehaviour
 
         EquipGun(newGun, isPickup: true);
     }
+    
+    public void CanSwitchGuns(bool value)
+    {
+        canSwitchGuns = value;
+    }
+    
+    public bool GetCanSwitchGuns()
+    {
+        return canSwitchGuns;
+    }
         
     public List<Gun> GetGuns()
     {
@@ -66,6 +81,16 @@ public class PlayerGunManager : NetworkBehaviour
     public GunBob GetGunBob()
     {
         return bob;
+    }
+    
+    public bool AreGunsHidden()
+    {
+        return gunsAreHidden;
+    }
+    
+    public void SetGunsHidden(bool value)
+    {
+        gunsAreHidden = value;
     }
 
     public Gun GetActiveGun()
@@ -154,7 +179,7 @@ public class PlayerGunManager : NetworkBehaviour
         }
     }
 
-    void EquipGun(Gun g, bool isPickup = false)
+    public void EquipGun(Gun g, bool isPickup = false)
     {
         if (gun && gun != g)
         {
@@ -164,12 +189,20 @@ public class PlayerGunManager : NetworkBehaviour
 
         gun = g;
         gun.gameObject.SetActive(true);
-        anim = gun.GetComponentInChildren<Animator>();
+        Debug.Log(gun);
+        anim = gun.GetComponentInChildren<Animator>(true);
+        Debug.Log(anim);
         recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
         recoilAnimation.SetPlayerGunManager(this);
-
-        bob = gun.GetComponentInChildren<GunBob>();
-        bob.enabled = true;
+        gunModel = gun.GetComponentInChildren<MeshRenderer>().transform;
+        gunModel.localPosition = Vector3.zero;
+        
+        bob = gun.GetComponentInChildren<GunBob>(true);
+        if(bob)
+        {
+            bob.enabled = true;
+        }
+        
 
         if (isPickup)
         {
@@ -186,6 +219,40 @@ public class PlayerGunManager : NetworkBehaviour
         SwitchWeaponRpc(GetActiveGunIndex(), OwnerClientId);
         ammoUI.gunName.text = GetActiveGun().gunData.gunName;
         ammoUI.ammoText.text = GetActiveGun().GetAmmo().ToString() + " / " + GetActiveGun().gunData.magSize;
+    }
+
+    public void SetGunsVisible(bool visible)
+    {
+        gunsAreHidden = !visible;
+        canFire = visible;
+
+        if (visible)
+        {
+            if (guns.Count == 0) return;
+
+            // Always bring back the first gun in the list
+            Gun first = guns[0];
+
+            foreach (Gun g in guns)
+            {
+                if(g == first)
+                {
+                    g.gameObject.SetActive(true);
+                    //SetAnimLayer(g);
+                }
+
+
+            }
+
+            //SwitchGun();
+        }
+        else
+        {
+            foreach (Gun g in guns)
+                g.gameObject.SetActive(false);
+        }
+
+        
     }
 
     public bool isAiming()
@@ -277,7 +344,7 @@ public class PlayerGunManager : NetworkBehaviour
         if (!IsOwner) return;
         if (!gun) return;
 
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (Input.GetKeyDown(KeyCode.Alpha1) && canSwitchGuns)
         {
             SwitchGun();
         }
@@ -335,8 +402,8 @@ public class PlayerGunManager : NetworkBehaviour
         
         Vector3 targetPos = aim ? gun.gunData.adsPos : hipPosition;
 
-        gun.transform.localPosition = Vector3.Lerp(
-            gun.transform.localPosition,
+        gunModel.localPosition = Vector3.Lerp(
+            gunModel.localPosition,
             targetPos,
             Time.deltaTime * gun.gunData.adsSpeed
         );

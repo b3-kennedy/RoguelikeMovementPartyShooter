@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Collections.Generic;
 using Dissonance;
+using UnityEngine.Events;
 
 [System.Serializable]
 public class GunAndPickup
@@ -38,8 +39,13 @@ public class GameManager : NetworkBehaviour
 
     public void RegisterPickup(GunReferenceHolder p) => activePickups[p.pickupInstanceID] = p;
     public void UnregisterPickup(GunReferenceHolder p) => activePickups.Remove(p.pickupInstanceID);
+    
+    public NetworkVariable<int> roomsCleared = new NetworkVariable<int>();
+    public UnityEvent roomCleared;
 
     public GameObject joe;
+
+    int roomNumber = 0;
 
 
     void Awake()
@@ -55,7 +61,17 @@ public class GameManager : NetworkBehaviour
 
         
     }
+
+    void OnEnable()
+    {
+        roomCleared.AddListener(SpawnRooms);
+    }
     
+    void OnDisable()
+    {
+        roomCleared.RemoveListener(SpawnRooms);
+    }
+
     public void OnEnterBasketballRoom()
     {
         
@@ -139,32 +155,51 @@ public class GameManager : NetworkBehaviour
 
     public void SpawnRooms()
     {
-        for (int i = 0; i < numberOfRooms; i++)
-        {
-            
+
             GameObject roomPrefab = rooms[Random.Range(0, rooms.Length)];
-            if (i == 0)
+            if (roomNumber == 0)
             {
-                
+
                 GameObject roomInstance = Instantiate(roomPrefab, roomStartPoint.position, Quaternion.identity);
                 roomInstance.GetComponent<NetworkObject>().Spawn();
                 spawnedRooms.Add(roomInstance);
             }
             else
             {
-                Vector3 nextSpawn = spawnedRooms[i - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
+                Vector3 nextSpawn = spawnedRooms[roomNumber - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
                 GameObject roomInstance = Instantiate(roomPrefab, nextSpawn, Quaternion.identity);
                 roomInstance.GetComponent<NetworkObject>().Spawn();
                 spawnedRooms.Add(roomInstance);
             }
-                
-            
-            
-        }
+            roomNumber++;
+
+
+        // for (int i = 0; i < numberOfRooms; i++)
+        // {
+
+        //     GameObject roomPrefab = rooms[Random.Range(0, rooms.Length)];
+        //     if (i == 0)
+        //     {
+
+        //         GameObject roomInstance = Instantiate(roomPrefab, roomStartPoint.position, Quaternion.identity);
+        //         roomInstance.GetComponent<NetworkObject>().Spawn();
+        //         spawnedRooms.Add(roomInstance);
+        //     }
+        //     else
+        //     {
+        //         Vector3 nextSpawn = spawnedRooms[i - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
+        //         GameObject roomInstance = Instantiate(roomPrefab, nextSpawn, Quaternion.identity);
+        //         roomInstance.GetComponent<NetworkObject>().Spawn();
+        //         spawnedRooms.Add(roomInstance);
+        //     }
+
+
+
+        // }
     }
-    
-    
-    
+
+
+
     public void SetLocalPlayerCamera(Camera camera)
     {
         localPlayerCamera = camera;

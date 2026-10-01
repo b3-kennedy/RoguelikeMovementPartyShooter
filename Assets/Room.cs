@@ -198,6 +198,13 @@ public class Room : NetworkBehaviour
                 Debug.LogWarning($"Unknown room type: {roomType}");
                 break;
         }
+        
+        if(IsServer)
+        {
+            GameManager.Instance.roomsCleared.Value++;
+            GameManager.Instance.roomCleared.Invoke();
+        }
+        
     }
 
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]

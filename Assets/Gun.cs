@@ -25,12 +25,30 @@ public class Gun : MonoBehaviour
 
     AmmoUI ammoUI;
 
+    bool canFire = true;
+
     void Start()
     {
         recoilAnimation = GetComponentInParent<RecoilAnimation>();
         layerMask = LayerMask.GetMask("Barrier");
         anim = GetComponentInChildren<Animator>();
         ammoUI = GameManager.Instance.ammoUI.GetComponent<AmmoUI>();
+    }
+    
+    void OnEnable()
+    {
+        isHidden = false;
+        isReloading = false;
+        isFiring = false;
+        canFire = true;
+    }
+    
+    void OnDisable()
+    {
+        isHidden = true;
+        isReloading = false;
+        isFiring = false;
+        canFire = false;
     }
         
     public void SetHidden(bool value)
@@ -81,7 +99,6 @@ public class Gun : MonoBehaviour
     public void SetAmmo(int value)
     {
         ammo = value;
-        Debug.Log("????");
     }
     
     public int GetAmmo()
@@ -115,6 +132,7 @@ public class Gun : MonoBehaviour
     {
         if (!cam) return;
         if(isHidden) return;
+        if(!canFire) return;
         
         if(ammo <= 0)
         {
@@ -151,22 +169,13 @@ public class Gun : MonoBehaviour
         
         anim.SetFloat("RecoilVariance", Random.Range(0f, 1f));
         anim.SetTrigger("Shoot");
+        Debug.Log(anim.gameObject.name);
         recoilAnimation.Recoil();
     }
     
     public virtual void AlternateFire()
     {
         
-    }
-
-    void OnDisable()
-    {
-        Debug.Log($"[Gun] {name} disabled\n{System.Environment.StackTrace}");
-    }
-
-    void OnDestroy()
-    {
-        Debug.Log($"[Gun] {name} destroyed\n{System.Environment.StackTrace}");
     }
 
 }

@@ -446,6 +446,7 @@ GameObject:
   - component: {fileID: 1383430517252062920}
   - component: {fileID: 451454181934023471}
   - component: {fileID: 7293912228458494935}
+  - component: {fileID: 517551814267933994}
   m_Layer: 0
   m_Name: AimTrainPistolSpawnObject
   m_TagString: Untagged
@@ -599,3 +600,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce9c2eb70b85c6444abff0526609a390, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &517551814267933994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8567076790228387223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c44ed40856fd8684d87fc1e43896a072, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ammo: 999

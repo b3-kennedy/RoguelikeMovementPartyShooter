@@ -33,12 +33,12 @@ public class AimTrainRoom : NetworkBehaviour
     {
         start = true;
         timer = 0f;
-        roomTimer.Value = roomDuration;
         spawnZ = targetWall.bounds.max.z + -0.75f;
         roomTimerText.gameObject.SetActive(true);
         startTimerText.gameObject.SetActive(true);
         if(IsServer)
         {
+            roomTimer.Value = roomDuration;
             roomScore.Value = 0;
         }
         
@@ -49,6 +49,7 @@ public class AimTrainRoom : NetworkBehaviour
 
         if (gunsPickedUp.Value >= 2 && !start)
         {
+            startTimerText.gameObject.SetActive(true);
             startTimer -= Time.deltaTime;
             startTimerText.text = Mathf.CeilToInt(startTimer).ToString();
             if (startTimer <= 0f)
@@ -71,7 +72,7 @@ public class AimTrainRoom : NetworkBehaviour
             start = false;
             gunsPickedUp.Value = 0;
             HideRoomTimerRpc();
-            GetComponent<Room>().OnComplete();
+            OnCompleteRpc();
             Debug.Log($"[AimTrainRoom] Room complete! Final score: {roomScore.Value}");
             return;
         }
@@ -81,6 +82,12 @@ public class AimTrainRoom : NetworkBehaviour
 
         timer = timeBetweenTargets;
         SpawnTarget();
+    }
+    
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+    void OnCompleteRpc()
+    {
+        GetComponent<Room>().OnComplete();
     }
 
     void SpawnTarget()
