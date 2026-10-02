@@ -351,7 +351,6 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
 
         gunManager.SetUseAmmo(false);
         gunManager.GetAnimator()?.SetBool("Sprint", false);
-        gunManager.GetAnimator()?.SetBool("Slide", true);
     }
 
     void StopSlide()
@@ -368,7 +367,7 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
         Vector3 scale = playerObject.transform.localScale;
         playerObject.transform.localScale = new Vector3(scale.x, 1f, scale.z);
         gunManager.SetUseAmmo(true);
-        gunManager.GetAnimator()?.SetBool("Slide", false);
+        
     }
 
     private void FixedUpdate()

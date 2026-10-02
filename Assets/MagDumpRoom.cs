@@ -51,16 +51,40 @@ public class MagDumpRoom : NetworkBehaviour
         
         if(timer <= 0)
         {
-            GetComponent<Room>().OnComplete();
+            if(IsServer)
+            {
+                OnCompleteRpc();
+            }
+            
             roomEnabled = false;
         }
     }
     
     void OnJoeDeath()
     {
-        GetComponent<Room>().OnComplete();
+        OnCompleteRpc();
     }
-    
+
+
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+    void OnCompleteRpc()
+    {
+        GetComponent<Room>().OnComplete();
+        if(IsServer)
+        {
+            if (joeHealth.health.Value <= 0)
+            {
+                GameManager.Instance.points.Value += 1000;
+            }
+            else
+            {
+                GameManager.Instance.points.Value += Mathf.CeilToInt((joeHealth.health.Value / joeHealth.maxHealth) * 1000);
+            }
+        }
+
+
+    }
+
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
     public void UpdateHealthBarRpc()
     {

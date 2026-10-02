@@ -43,6 +43,10 @@ public class ReverseSpeechRoomsManager : NetworkBehaviour
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Everyone)]
     public void OnRoomCompleteRpc()
     {
+        if (IsServer)
+        {
+            GameManager.Instance.points.Value += 500;
+        }
         GetComponent<Room>().OnComplete();
     }
 

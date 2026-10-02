@@ -189,10 +189,8 @@ public class PlayerGunManager : NetworkBehaviour
 
         gun = g;
         gun.gameObject.SetActive(true);
-        Debug.Log(gun);
         anim = gun.GetComponentInChildren<Animator>(true);
         anim.keepAnimatorStateOnDisable = true;
-        Debug.Log(anim);
         recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
         recoilAnimation.SetPlayerGunManager(this);
         

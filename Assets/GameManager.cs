@@ -44,6 +44,8 @@ public class GameManager : NetworkBehaviour
     public UnityEvent roomCleared;
 
     public GameObject joe;
+    
+    public NetworkVariable<int> points = new NetworkVariable<int>();
 
     int roomNumber = 0;
 

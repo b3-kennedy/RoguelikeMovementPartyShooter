@@ -27,6 +27,10 @@ public class AimTrainRoom : NetworkBehaviour
     public TextMeshProUGUI startTimerText;
     public TextMeshProUGUI roomTimerText;
     float startTimer = 5f;
+
+    public int upperScoreBoundary = 11000;
+    public int middleScoreBoundary = 9000;
+    public int lowerScoreBoundary = 7000;
     
     
     public void StartRoom()
@@ -88,6 +92,27 @@ public class AimTrainRoom : NetworkBehaviour
     void OnCompleteRpc()
     {
         GetComponent<Room>().OnComplete();
+        if(IsServer)
+        {
+            if (roomScore.Value >= upperScoreBoundary)
+            {
+                GameManager.Instance.points.Value += 1000;
+            }
+            else if (roomScore.Value >= middleScoreBoundary)
+            {
+                GameManager.Instance.points.Value += 500;
+            }
+            else if (roomScore.Value >= lowerScoreBoundary)
+            {
+                GameManager.Instance.points.Value += 100;
+            }
+            else
+            {
+                GameManager.Instance.points.Value += 0;
+            }
+        }
+
+        
     }
 
     void SpawnTarget()

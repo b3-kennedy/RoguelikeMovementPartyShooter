@@ -16,7 +16,10 @@ public class Basketball : NetworkBehaviour
     void SendCompleteRpc(ulong roomNetID)
     {
         if (!NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(roomNetID, out var room)) return;
-
+        if(IsServer)
+        {
+            GameManager.Instance.points.Value += 500;
+        }
         room.GetComponent<Room>().OnComplete();
     }
 }

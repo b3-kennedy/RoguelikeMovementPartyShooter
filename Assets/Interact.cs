@@ -389,19 +389,6 @@ public class Interact : NetworkBehaviour
             room.PlayerEntered();
             if (playerGunManager.GetGun())
             {
-                if(room.roomType == Room.RoomType.AIM_TRAIN)
-                {
-                    playerGunManager.CanSwitchGuns(false);
-                    for (int i = 0; i < gunHolder.GetChild(0).childCount; i++)
-                    {
-                       if (gunHolder.GetChild(0).GetChild(i).GetComponent<OnPickup>())
-                       {
-                           Destroy(gunHolder.GetChild(0).GetChild(i).gameObject);
-                       }
-                    }
-                    
-
-                }
                 if (room.canHaveGuns)
                 {
                     playerGunManager.SetGunsVisible(true);
@@ -426,6 +413,17 @@ public class Interact : NetworkBehaviour
             {
                 playerGunManager.CanFire(true);
                 playerGunManager.CanSwitchGuns(true);
+                Debug.Log("Aim Train Room Exit");
+                for (int i = 0; i < gunHolder.childCount; i++)
+                {
+                    Debug.Log($"Checking gunHolder child {i}: {gunHolder.GetChild(i).name}");
+                    if (gunHolder.GetChild(i).GetComponent<GunReferenceHolder>().gunID == 2) //aim train pistol ID
+                    {
+
+                        Destroy(gunHolder.GetChild(i).gameObject);
+                        playerGunManager.EquipGun(playerGunManager.GetGuns()[0]);
+                    }
+                }
             }
             other.GetComponentsInParent<Room>()[0].PlayerExited();
         }
