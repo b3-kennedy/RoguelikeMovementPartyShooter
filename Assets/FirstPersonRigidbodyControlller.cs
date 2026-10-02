@@ -91,6 +91,7 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     [SerializeField] private float slideLandingLoss = 0.5f;   // speed lost per unit of impact speed
     [SerializeField] private float minSlideLandSpeed = 4f;     // ignore small hops
     [SerializeField] private float flatLandAngle = 5f;   // max slope angle that counts as "flat"
+    [SerializeField] private float ceilingCheckDistance = 0.25f;
 
     private void Awake()
     {
@@ -400,7 +401,8 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     bool HasCeiling()
     {
         Vector3 top = transform.position + col.center + Vector3.up * (col.height * 0.5f);
-        return Physics.Raycast(top, Vector3.up, standHeight - slideHeight + 0.1f);
+        return Physics.Raycast(top, Vector3.up, ceilingCheckDistance,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
     }
 
     private void OnLand(float impactSpeed)

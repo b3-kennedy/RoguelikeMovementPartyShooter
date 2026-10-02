@@ -191,11 +191,10 @@ public class PlayerGunManager : NetworkBehaviour
         gun.gameObject.SetActive(true);
         Debug.Log(gun);
         anim = gun.GetComponentInChildren<Animator>(true);
+        anim.keepAnimatorStateOnDisable = true;
         Debug.Log(anim);
         recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
         recoilAnimation.SetPlayerGunManager(this);
-        gunModel = gun.GetComponentInChildren<MeshRenderer>().transform;
-        gunModel.localPosition = Vector3.zero;
         
         bob = gun.GetComponentInChildren<GunBob>(true);
         if(bob)
@@ -230,29 +229,14 @@ public class PlayerGunManager : NetworkBehaviour
         {
             if (guns.Count == 0) return;
 
-            // Always bring back the first gun in the list
-            Gun first = guns[0];
-
-            foreach (Gun g in guns)
-            {
-                if(g == first)
-                {
-                    g.gameObject.SetActive(true);
-                    //SetAnimLayer(g);
-                }
-
-
-            }
-
-            //SwitchGun();
+            Gun toShow = (gun && guns.Contains(gun)) ? gun : guns[0];
+            EquipGun(toShow);
         }
         else
         {
             foreach (Gun g in guns)
                 g.gameObject.SetActive(false);
         }
-
-        
     }
 
     public bool isAiming()
@@ -402,8 +386,8 @@ public class PlayerGunManager : NetworkBehaviour
         
         Vector3 targetPos = aim ? gun.gunData.adsPos : hipPosition;
 
-        gunModel.localPosition = Vector3.Lerp(
-            gunModel.localPosition,
+        gun.transform.localPosition = Vector3.Lerp(
+            gun.transform.localPosition,
             targetPos,
             Time.deltaTime * gun.gunData.adsSpeed
         );
