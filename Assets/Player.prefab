@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: -2888443511851020012}
   - component: {fileID: 5451725588021151415}
   - component: {fileID: -1341163892214694444}
+  - component: {fileID: 6367603476110234974}
+  - component: {fileID: -7710426267055652655}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -112,6 +114,10 @@ MonoBehaviour:
   airSlideControl: 0.5
   slideTurnLoss: 0
   minTurnMultiplier: 0.25
+  slideLandingLoss: 0.5
+  minSlideLandSpeed: 4
+  flatLandAngle: 5
+  ceilingCheckDistance: 0.25
 --- !u!54 &4022971687466610310
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -233,7 +239,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkTransformExpanded: 1
   AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
+  PositionInterpolationType: 2
   RotationInterpolationType: 0
   ScaleInterpolationType: 0
   PositionLerpSmoothing: 1
@@ -282,6 +288,36 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
+--- !u!114 &6367603476110234974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1155987749518690272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6c0be61502bb534f922ebb746851216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkRigidbodyBaseExpanded: 0
+  UseRigidBodyForMotion: 1
+  AutoUpdateKinematicState: 1
+  AutoSetKinematicOnDespawn: 1
+--- !u!114 &-7710426267055652655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1155987749518690272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38a5cd30da8e4b94ca12bf66f9ad3608, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &3664658379125169228
 GameObject:
   m_ObjectHideFlags: 0
@@ -384,9 +420,9 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkTransformExpanded: 1
   AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
+  PositionInterpolationType: 2
+  RotationInterpolationType: 2
+  ScaleInterpolationType: 2
   PositionLerpSmoothing: 1
   PositionMaxInterpolationTime: 0.1
   RotationLerpSmoothing: 1
@@ -397,7 +433,7 @@ MonoBehaviour:
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
   SyncPositionX: 0
-  SyncPositionY: 1
+  SyncPositionY: 0
   SyncPositionZ: 0
   SyncRotAngleX: 1
   SyncRotAngleY: 1

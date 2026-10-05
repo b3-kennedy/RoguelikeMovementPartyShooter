@@ -1,8 +1,10 @@
 using UnityEngine;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using System.Collections.Generic;
 using Dissonance;
 using UnityEngine.Events;
+using TMPro;
 
 [System.Serializable]
 public class GunAndPickup
@@ -41,14 +43,16 @@ public class GameManager : NetworkBehaviour
     public void UnregisterPickup(GunReferenceHolder p) => activePickups.Remove(p.pickupInstanceID);
     
     public NetworkVariable<int> roomsCleared = new NetworkVariable<int>();
-    public UnityEvent roomCleared;
-
-    public GameObject joe;
-    
+    public UnityEvent roomCleared;    
     public NetworkVariable<int> points = new NetworkVariable<int>();
 
+    public float maxGameTime = 300f; // 5 minutes
+    private NetworkVariable<float> gameTimer = new NetworkVariable<float>();
+    
+    public TextMeshProUGUI timerText;
     int roomNumber = 0;
 
+    bool teleportedToBoss = false;
 
     void Awake()
     {
@@ -62,6 +66,14 @@ public class GameManager : NetworkBehaviour
         }
 
         
+    }
+    
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            gameTimer.Value = maxGameTime;
+        }
     }
 
     void OnEnable()
@@ -82,21 +94,7 @@ public class GameManager : NetworkBehaviour
     public void OnExitBasketBallRoom()
     {
         
-    }
-    
-    public void OnEnterMagDumpRoom(Vector3 spawnPosition)
-    {
-        SpawnJoeRpc(spawnPosition);
-    }
-
-    
-    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Server)]
-    void SpawnJoeRpc(Vector3 position)
-    {
-        GameObject joeInstance = Instantiate(joe, position, Quaternion.identity);
-        joeInstance.GetComponent<NetworkObject>().Spawn();
-    }
-    
+    }    
     public void EnableReloadUI(bool value)
     {
         reloadUI.SetActive(value);
@@ -120,17 +118,41 @@ public class GameManager : NetworkBehaviour
         dissonanceSetupObject.GetComponent<VoiceBroadcastTrigger>().enabled = value;
         dissonanceSetupObject.GetComponent<VoiceReceiptTrigger>().enabled = value;
     }
-    
+
     void Update()
     {
-        if(IsServer)
+        if (!IsSpawned) return;
+
+        if (IsServer)
         {
-            if(Input.GetKeyDown(KeyCode.P) && canSpawnRooms)
+            if (Input.GetKeyDown(KeyCode.P) && canSpawnRooms)
             {
                 SpawnRooms();
                 canSpawnRooms = false;
             }
+
+            gameTimer.Value = Mathf.Max(0f, gameTimer.Value - Time.deltaTime);
+            
+            if(gameTimer.Value <= 0f && !teleportedToBoss)
+            {
+                SendToBossRpc();
+                teleportedToBoss = true;
+            }
         }
+
+        int total = Mathf.CeilToInt(gameTimer.Value);
+        timerText.text = $"{total / 60:00}:{total % 60:00}";
+    }
+    
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Server)]
+    void SendToBossRpc()
+    {
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            var playerObject = client.PlayerObject.GetComponent<PlayerTeleport>();
+            playerObject.TeleportRpc(new Vector3(100,100,100), Quaternion.identity);
+        }
+        
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Server)]
