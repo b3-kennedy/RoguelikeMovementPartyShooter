@@ -38,6 +38,11 @@ public class Room : NetworkBehaviour
             RegisterPlayerEnteredRpc();
         }
     }
+    
+    public override void OnNetworkSpawn()
+    {
+        GameManager.Instance.AssignRoomPickupIDs(NetworkObject);
+    }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void RegisterPlayerEnteredRpc(RpcParams rpcParams = default)

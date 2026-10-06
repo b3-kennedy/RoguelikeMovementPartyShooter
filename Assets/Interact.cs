@@ -421,7 +421,8 @@ public class Interact : NetworkBehaviour
                     {
 
                         Destroy(gunHolder.GetChild(i).gameObject);
-                        playerGunManager.EquipGun(playerGunManager.GetGuns()[0]);
+                        Gun gun = playerGunManager.GetGuns()[0];
+                        playerGunManager.SetGun(gun, gun.GetAmmo());
                     }
                 }
             }

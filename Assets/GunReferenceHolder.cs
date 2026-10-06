@@ -14,7 +14,7 @@ public class GunReferenceHolder : MonoBehaviour
 
     void OnDisable()
     {
-        if (pickupInstanceID >= 0)
+        if (pickupInstanceID >= 0 && GameManager.Instance != null)
             GameManager.Instance.UnregisterPickup(this);
     }
 

@@ -1260,7 +1260,12 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  maxGameTime: 60
+  maxGameTime: 1200
+  pauseTimer:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
   timerText: {fileID: 507526978}
 --- !u!4 &517760379
 Transform:
@@ -1303,6 +1308,71 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!1001 &525224499
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 228404151937344820, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 228404151937344820, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2472015919
+      objectReference: {fileID: 0}
+    - target: {fileID: 6722611721649989555, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_Name
+      value: AimTrainRoom
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 24.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6994807388553101775, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 66a82ee19205b0d4bb66d73a08a665ea, type: 3}
 --- !u!1 &532597412
 GameObject:
   m_ObjectHideFlags: 0
@@ -4000,3 +4070,4 @@ SceneRoots:
   - {fileID: 1207042344}
   - {fileID: 1412914070}
   - {fileID: 1145251008}
+  - {fileID: 525224499}

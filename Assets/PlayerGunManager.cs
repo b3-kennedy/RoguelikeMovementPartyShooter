@@ -199,13 +199,8 @@ public class PlayerGunManager : NetworkBehaviour
         {
             bob.enabled = true;
         }
-        
 
-        if (isPickup)
-        {
-            recoilAnimation.OnPickup();
-        }
-
+        recoilAnimation.OnPickup();
         gun.transform.localPosition = hipPosition;
         nextFireTime = 0f;
 
