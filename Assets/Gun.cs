@@ -169,7 +169,6 @@ public class Gun : MonoBehaviour
         
         anim.SetFloat("RecoilVariance", Random.Range(0f, 1f));
         anim.SetTrigger("Shoot");
-        Debug.Log(anim.gameObject.name);
         recoilAnimation.Recoil();
     }
     

@@ -21,6 +21,8 @@ public class GameManager : NetworkBehaviour
     private Camera localPlayerCamera;
 
     public GameObject[] rooms;
+    
+    public GameObject[] specialRooms;
     public GunAndPickup[] guns;
     List<GameObject> spawnedRooms = new List<GameObject>();
 
@@ -117,7 +119,9 @@ public class GameManager : NetworkBehaviour
     public TextMeshProUGUI timerText;
     int roomNumber = 0;
 
+    public int timerMultiplier = 1; // For testing, can speed up the timer
     bool teleportedToBoss = false;
+    bool spawnSpecialRoom = false;
 
     void Awake()
     {
@@ -129,6 +133,17 @@ public class GameManager : NetworkBehaviour
         {
             Destroy(gameObject);
         }
+    }
+    
+    
+    public void IsPaused(bool value)
+    {
+        if(!IsServer)
+        {
+            Debug.LogWarning("IsPaused called on a client. This should only be called on the server.");
+            return;
+        }
+        pauseTimer.Value = value;
     }
 
     void Start()
@@ -202,7 +217,13 @@ public class GameManager : NetworkBehaviour
 
             if (!pauseTimer.Value)
             {
-                gameTimer.Value = Mathf.Max(0f, gameTimer.Value - Time.deltaTime);
+                gameTimer.Value = Mathf.Max(0f, gameTimer.Value - Time.deltaTime * timerMultiplier);
+                int secondsLeft = Mathf.CeilToInt(gameTimer.Value);
+                if (secondsLeft % 300 == 0 && secondsLeft != maxGameTime)
+                {
+                    
+                    spawnSpecialRoom = true;
+                }
             }
 
             if (gameTimer.Value <= 0f && !teleportedToBoss)
@@ -253,12 +274,24 @@ public class GameManager : NetworkBehaviour
     {
 
         GameObject roomPrefab = rooms[Random.Range(0, rooms.Length)];
+        
+
+        
         if (roomNumber == 0)
         {
 
             GameObject roomInstance = Instantiate(roomPrefab, roomStartPoint.position, Quaternion.identity);
             roomInstance.GetComponent<NetworkObject>().Spawn();
             spawnedRooms.Add(roomInstance);
+        }
+        else if (roomNumber > 0 && spawnSpecialRoom)
+        {
+            GameObject specialRoomPrefab = specialRooms[Random.Range(0, specialRooms.Length)];
+            Vector3 nextSpawn = spawnedRooms[roomNumber - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
+            GameObject roomInstance = Instantiate(specialRoomPrefab, nextSpawn, Quaternion.identity);
+            roomInstance.GetComponent<NetworkObject>().Spawn();
+            spawnedRooms.Add(roomInstance);
+            spawnSpecialRoom = false;
         }
         else
         {

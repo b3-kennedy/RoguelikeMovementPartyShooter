@@ -6,7 +6,7 @@ using System.Collections;
 
 public class Room : NetworkBehaviour
 {
-    public enum RoomType { REVERSE_SPEECH, BASKETBALL, PATH, MAG_DUMP, AIM_TRAIN}
+    public enum RoomType { REVERSE_SPEECH, BASKETBALL, PATH, MAG_DUMP, AIM_TRAIN, SPECIAL}
     public RoomType roomType;
     public Light[] roomLights;
     public GameObject[] enterDoors;
@@ -130,6 +130,10 @@ public class Room : NetworkBehaviour
             
             case RoomType.AIM_TRAIN:
                 //GetComponent<AimTrainRoom>().StartRoom();
+                break;
+            
+            case RoomType.SPECIAL:
+                GetComponent<SpecialRoom>().OnEnter();
                 break;
 
             default:
