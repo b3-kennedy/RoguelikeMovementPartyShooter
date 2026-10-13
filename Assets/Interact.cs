@@ -187,6 +187,7 @@ public class Interact : NetworkBehaviour
                 Pickupable pickupable = hit.collider.GetComponent<Pickupable>();
                 WorldButton worldButton = hit.collider.GetComponent<WorldButton>();
                 GunReferenceHolder gunReferenceHolder = hit.collider.GetComponent<GunReferenceHolder>();
+                RoomButton roomButton = hit.collider.GetComponent<RoomButton>();
                 if (pickupable != null)
                 {
                     pickupable.RequestPickupRpc(NetworkManager.Singleton.LocalClientId);
@@ -226,6 +227,11 @@ public class Interact : NetworkBehaviour
                     SpawnGunRpc(gunReferenceHolder.gunID, OwnerClientId, pickUpAmmo);
                     GameManager.Instance.EnableAmmoUI(true);
                     DestroyGunPickupRpc(gunReferenceHolder.pickupInstanceID);
+                }
+                
+                if(roomButton)
+                {
+                    roomButton.OnButtonPressed();
                 }
                 
             }
@@ -413,18 +419,11 @@ public class Interact : NetworkBehaviour
             {
                 playerGunManager.CanFire(true);
                 playerGunManager.CanSwitchGuns(true);
+                Gun activeGun = playerGunManager.GetActiveGun();
                 Debug.Log("Aim Train Room Exit");
-                for (int i = 0; i < gunHolder.childCount; i++)
-                {
-                    Debug.Log($"Checking gunHolder child {i}: {gunHolder.GetChild(i).name}");
-                    if (gunHolder.GetChild(i).GetComponent<GunReferenceHolder>().gunID == 2) //aim train pistol ID
-                    {
-
-                        Destroy(gunHolder.GetChild(i).gameObject);
-                        Gun gun = playerGunManager.GetGuns()[0];
-                        playerGunManager.SetGun(gun, gun.GetAmmo());
-                    }
-                }
+                int id = activeGun.GetComponent<GunReferenceHolder>().gunID;
+                int remainingAmmo = activeGun.GetAmmo();
+                DropGunRpc(id, OwnerClientId, throwForce, remainingAmmo);
             }
             other.GetComponentsInParent<Room>()[0].PlayerExited();
         }

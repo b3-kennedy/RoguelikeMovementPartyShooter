@@ -326,7 +326,6 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
 
     void StartSlide()
     {
-        Debug.Log("Starting slide");
         Vector3 hv = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         if (hv.sqrMagnitude < 0.01f) return;
         if(gunBob)
@@ -355,7 +354,6 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
 
     void StopSlide()
     {
-        Debug.Log("Stopping slide");
         isSliding = false;
         if(gunBob)
         {

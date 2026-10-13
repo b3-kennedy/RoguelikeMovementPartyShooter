@@ -6,6 +6,7 @@ using System.Linq;
 using Dissonance;
 using UnityEngine.Events;
 using TMPro;
+using NUnit.Framework;
 
 [System.Serializable]
 public class GunAndPickup
@@ -156,6 +157,7 @@ public class GameManager : NetworkBehaviour
         if (IsServer)
         {
             gameTimer.Value = maxGameTime;
+            IsPaused(true);
         }
     }
 
@@ -211,7 +213,7 @@ public class GameManager : NetworkBehaviour
             if (Input.GetKeyDown(KeyCode.P) && canSpawnRooms)
             {
                 SpawnRooms();
-                canSpawnRooms = false;
+                //canSpawnRooms = false;
             }
 
 

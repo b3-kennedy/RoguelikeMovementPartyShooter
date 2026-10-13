@@ -17,9 +17,13 @@ public class Room : NetworkBehaviour
 
     public bool turnLightNormal;
 
+    public bool pauseTimerOnEnter = false;
+
     // Server-only bookkeeping — dedupes by client, so one player can never count twice.
     private readonly HashSet<ulong> _enteredClients = new HashSet<ulong>();
     private readonly HashSet<ulong> _exitedClients = new HashSet<ulong>();
+    
+    NetworkVariable<int> buttonPressedCount = new NetworkVariable<int>();
 
     void Start()
     {
@@ -102,9 +106,61 @@ public class Room : NetworkBehaviour
         }
     }
 
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    public void OnRoomButtonPressedRpc(int index)
+    {
+        buttonPressedCount.Value++;
+        RoomButton button = transform.GetChild(index).GetComponent<RoomButton>();
+        button.SetPressedState(true);
+        if (buttonPressedCount.Value >= 2)
+        {
+            OnButtonCompleteRpc();
+        }
+    }
+    
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+    void OnButtonCompleteRpc()
+    {
+            switch (roomType)
+            {
+                case RoomType.REVERSE_SPEECH:
+                    break;
+
+                case RoomType.BASKETBALL:
+                    break;
+
+                case RoomType.PATH:
+                    break;
+
+                case RoomType.MAG_DUMP:
+                    break;
+
+                case RoomType.AIM_TRAIN:
+                    break;
+
+                case RoomType.SPECIAL:
+                    OnComplete();
+                    break;
+
+                default:
+                    Debug.LogWarning($"Unknown room type: {roomType}");
+                    break;
+            }
+    }
+
     private void OnEnter()
     {
         CloseEnterDoorRpc();
+        
+        if(pauseTimerOnEnter)
+        {
+            GameManager.Instance.IsPaused(true);
+        }
+        else
+        {
+            GameManager.Instance.IsPaused(false);
+        }
 
         switch (roomType)
         {
@@ -133,7 +189,7 @@ public class Room : NetworkBehaviour
                 break;
             
             case RoomType.SPECIAL:
-                GetComponent<SpecialRoom>().OnEnter();
+                GetComponent<SpecialRoom>().OnEnterRpc();
                 break;
 
             default:

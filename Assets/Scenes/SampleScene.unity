@@ -3451,7 +3451,7 @@ MonoBehaviour:
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
     Address: 127.0.0.1
-    Port: 7776
+    Port: 7777
     WebSocketPath: /
     ServerListenAddress: 127.0.0.1
     ClientBindPort: 0
@@ -3473,7 +3473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PresetAsset: {fileID: 0}
   m_PresetReference:
-    rid: 4747192154779549784
+    rid: 4747192338863620183
   m_Scenario:
     rid: -2
   m_IsScenarioSettingsFolded: 0
@@ -3483,7 +3483,7 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 4747192154779549784
+    - rid: 4747192338863620183
       type: {class: NetworkSimulatorPreset, ns: Unity.Multiplayer.Tools.NetworkSimulator.Runtime, asm: Unity.Multiplayer.Tools.NetworkSimulator.Runtime}
       data:
         <Name>k__BackingField: None
@@ -3872,83 +3872,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2140319636}
   m_CullTransparentMesh: 1
---- !u!1001 &31217691947775550
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545097857818702742, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5335396745176766374, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_Name
-      value: WeaponSpawner
-      objectReference: {fileID: 0}
-    - target: {fileID: 6604305354708473051, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: tiers.Array.data[0].weapons.Array.size
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6604305354708473051, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: 'tiers.Array.data[0].weapons.Array.data[1]'
-      value: 
-      objectReference: {fileID: 4284779014700651574, guid: 179b60a1a2f388d42ba1a0f6f361b2c9, type: 3}
-    - target: {fileID: 8567147812264755862, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: m_InScenePlaced
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8567147812264755862, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: GlobalObjectIdHash
-      value: 1519886480
-      objectReference: {fileID: 0}
-    - target: {fileID: 8567147812264755862, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 1322265
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 3b1ac0d4352a6644fb7d9205574488e4, type: 3}
 --- !u!1001 &1852120644050195938
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4085,4 +4008,3 @@ SceneRoots:
   - {fileID: 1207042344}
   - {fileID: 1412914070}
   - {fileID: 1145251008}
-  - {fileID: 31217691947775550}

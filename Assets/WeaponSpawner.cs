@@ -92,36 +92,36 @@ public class WeaponSpawner : NetworkBehaviour
             spawnedWeapon.transform.Rotate(Vector3.up, 20f * Time.deltaTime);
     }
 
-    private void SpawnWeapon()
+    public void SpawnWeapon()
     {
-        if (!IsServer)
+
+        if (IsServer)
         {
-            Debug.LogWarning("SpawnWeapon called on a client. This should only be called on the server.");
-            return;
+            Debug.Log("Spawn Weapons");
+            GameObject prefab = GetRandomWeapon();
+            if (prefab == null)
+            {
+                Debug.LogWarning("No weapon could be rolled. Check the tiers and table.", this);
+                return;
+            }
+
+            var holder = prefab.GetComponent<GunReferenceHolder>();
+            if (holder == null)
+            {
+                Debug.LogError($"{prefab.name} has no GunReferenceHolder", prefab);
+                return;
+            }
+
+            SpawnWeaponRpc(spawnPoint.position, holder.gunID);
         }
 
-        GameObject prefab = GetRandomWeapon();
-        if (prefab == null)
-        {
-            Debug.LogWarning("No weapon could be rolled. Check the tiers and table.", this);
-            return;
-        }
-
-        var holder = prefab.GetComponent<GunReferenceHolder>();
-        if (holder == null)
-        {
-            Debug.LogError($"{prefab.name} has no GunReferenceHolder", prefab);
-            return;
-        }
-
-        SpawnWeaponRpc(spawnPoint.position, holder.gunID);
     }
 
     [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
     public void SpawnWeaponRpc(Vector3 position, int gunID)
     {
         GameObject prefab = GameManager.Instance.guns[gunID].pickupObject;
-        if (prefab != null)
+        if (prefab != null && spawnedWeapon != null)
         {
             spawnedWeapon = Instantiate(prefab, position, Quaternion.identity);
             spawnedWeapon.GetComponent<Rigidbody>().isKinematic = true;

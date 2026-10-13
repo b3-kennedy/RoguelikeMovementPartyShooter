@@ -3,11 +3,27 @@ using Unity.Netcode;
 
 public class SpecialRoom : NetworkBehaviour
 {
-    public void OnEnter()
+
+    public WeaponSpawner[] weaponSpawners;
+    
+    [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+    public void OnEnterRpc()
     {
-        if(IsServer)
+        if (IsServer)
         {
             GameManager.Instance.IsPaused(true);
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            GameManager.Instance.IsPaused(true);
+            foreach (var spawner in weaponSpawners)
+            {
+                spawner.SpawnWeapon();
+            }
         }
     }
 }
