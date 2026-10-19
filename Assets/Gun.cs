@@ -19,6 +19,8 @@ public class Gun : MonoBehaviour
 
     bool isReloading;
 
+    public Transform muzzle;
+
     bool isFiring;
 
     LayerMask layerMask;
@@ -128,25 +130,22 @@ public class Gun : MonoBehaviour
         GameManager.Instance.EnableReloadUI(false);
     }
 
-    public virtual void Fire(bool useAmmo)
+    protected virtual void OnShotFired(Vector3 start, Vector3 end) { }
+
+    public virtual void Fire(bool useAmmo, int ammoLoss, bool canRecoil = true)
     {
         if (!cam) return;
         if(isHidden) return;
         if(!canFire) return;
-        
-        if(ammo <= 0)
-        {
-            if(!isReloading)
-            {                
-                StartCoroutine(Reload());
-            }
-            return;
-        }
-        
+
+        if (!CheckReload(useAmmo ? ammoLoss : 0)) return;
+
+        Vector3 end = cam.transform.position + cam.transform.forward * 500f;
+
         if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, Mathf.Infinity, ~layerMask))
         {
             Health health = hit.collider.GetComponent<Health>();
-            
+            end = hit.point;
             if(health)
             {
                 health.TakeDamageRpc(gunData.damage);
@@ -159,22 +158,75 @@ public class Gun : MonoBehaviour
                 targetObj.GetComponent<RedTarget>().OnHitServerRpc(NetworkManager.Singleton.LocalClientId);
             }
         }
-        
-        if(useAmmo)
+
+        UpdateAmmoUI(useAmmo, ammoLoss);
+        OnShotFired(muzzle ? muzzle.position : cam.transform.position, end);
+
+
+
+        if (canRecoil)
         {
-            ammo--;
-            ammoUI.ammoText.text = ammo.ToString() + " / " + gunData.magSize.ToString();
+            anim.SetFloat("RecoilVariance", Random.Range(0f, 1f));
+            anim.SetTrigger("Shoot");
+
         }
-        
-        
-        anim.SetFloat("RecoilVariance", Random.Range(0f, 1f));
-        anim.SetTrigger("Shoot");
         recoilAnimation.Recoil();
     }
-    
-    public virtual void AlternateFire()
+
+    protected Vector3 GetAimPoint()
     {
+        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, Mathf.Infinity, ~layerMask))
+            return hit.point;
+
+        return cam.transform.position + cam.transform.forward * 500f;
+    }
+
+    public virtual void AlternateFire(bool useAmmo, int ammoLoss, bool canRecoil = true)
+    {
+
+        if (!cam) return;
+        if (isHidden) return;
+        if (!canFire) return;
+
+
+        if (!CheckReload(useAmmo ? ammoLoss : 0)) return;
+        UpdateAmmoUI(useAmmo, ammoLoss);
+
+
+
+        if(canRecoil)
+        {
+            anim.SetFloat("RecoilVariance", Random.Range(0f, 1f));
+            anim.SetTrigger("Shoot");
+
+        }
+        recoilAnimation.Recoil();
+
+    }
+
+    bool CheckReload(int ammoLoss)
+    {
+        if (ammo >= ammoLoss) return true;
+
+        if (!isReloading)
+        {
+            StartCoroutine(Reload());
+        }
         
+        return false;
+    }
+
+    void UpdateAmmoUI(bool useAmmo, int ammoLoss)
+    {
+        if (useAmmo)
+        {
+            ammo -= ammoLoss;
+            if(ammo < 0)
+            {
+                ammo = 0;
+            }
+            ammoUI.ammoText.text = ammo.ToString() + " / " + gunData.magSize.ToString();
+        }
     }
 
 }

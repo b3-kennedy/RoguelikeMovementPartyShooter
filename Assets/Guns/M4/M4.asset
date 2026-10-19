@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: M4
   m_EditorClassIdentifier: 
   gunType: 1
+  ammoPerShot: 1
+  ammoPerAltShot: 1
   gunName: M4
   fireType: 1
   magSize: 30
   fireRate: 10
+  altFireRate: 0
   damage: 10
   adsSpeed: 10
   reloadTime: 1
@@ -25,3 +28,7 @@ MonoBehaviour:
   horizontalRecoil: 1
   recoilRecoveryDampening: 5
   snappiness: 5
+  altVerticalRecoil: 10
+  altHorizontalRecoil: 1
+  altRecoilRecoveryDampening: 5
+  altSnappiness: 5

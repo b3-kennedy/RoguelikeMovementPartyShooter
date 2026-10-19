@@ -269,6 +269,9 @@ public class PlayerGunManager : NetworkBehaviour
                 break;
             case GunData.GunType.SMG:
                 break;
+            case GunData.GunType.LASER:
+                anim.SetLayerWeight(anim.GetLayerIndex("Laser"), 1f);
+                break;
         }
     }
 
@@ -336,6 +339,23 @@ public class PlayerGunManager : NetworkBehaviour
         {
             CancelReload();
         }
+        
+        if (canAim)
+        {
+            aim = Input.GetButton("Fire2");
+        }
+        else
+        {
+            aim = false;
+        }
+
+        Vector3 targetPos = aim ? gun.gunData.adsPos : hipPosition;
+
+        gun.transform.localPosition = Vector3.Lerp(
+            gun.transform.localPosition,
+            targetPos,
+            Time.deltaTime * gun.gunData.adsSpeed
+        );
 
         if (!gun.IsReloading() && canFire)
         {
@@ -343,20 +363,12 @@ public class PlayerGunManager : NetworkBehaviour
             {
                 case GunData.FireType.SINGLE:
                     if (Input.GetButtonDown("Fire1") && Time.time >= nextFireTime)
-                    {
-                        gun.Fire(useAmmo);
-                        gun.SetIsFiring(true);
-                        ScheduleNextFireTime();
-                    }
+                        HandleFire(targetPos);
                     break;
 
                 case GunData.FireType.AUTO:
                     if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
-                    {
-                        gun.Fire(useAmmo);
-                        gun.SetIsFiring(true);
-                        ScheduleNextFireTime();
-                    }
+                        HandleFire(targetPos);
                     break;
             }
         }
@@ -368,28 +380,47 @@ public class PlayerGunManager : NetworkBehaviour
         }
 
 
-        if(canAim)
-        {
-            aim = Input.GetButton("Fire2");
-        }
-        else
-        {
-            aim = false;
-        }
-        
-        Vector3 targetPos = aim ? gun.gunData.adsPos : hipPosition;
 
-        gun.transform.localPosition = Vector3.Lerp(
-            gun.transform.localPosition,
-            targetPos,
-            Time.deltaTime * gun.gunData.adsSpeed
-        );
     }
-    
-    
-    
-    void ScheduleNextFireTime()
+
+    public void SendBeam(Vector3 end)
     {
-        nextFireTime = Time.time + 1f / gun.gunData.fireRate;
+        if (!IsOwner) return;
+        BeamRpc(end, GetActiveGunIndex());
+    }
+
+    [Rpc(SendTo.NotOwner, InvokePermission = RpcInvokePermission.Owner)]
+    void BeamRpc(Vector3 end, int gunIndex)
+    {
+        // same lookup your SwitchWeaponClientRpc uses
+        var cam = GetComponent<Interact>().cam;
+        var holder = cam.GetComponent<NetworkPlayerCamera>().transform.GetChild(0);
+
+        if (gunIndex < 0 || gunIndex >= holder.childCount) return;
+
+        var laser = holder.GetChild(gunIndex).GetComponentInChildren<LaserGun>(true);
+        if (laser) laser.PlayRemoteBeam(end);
+    }
+
+    void HandleFire(Vector3 targetPos)
+    {
+        bool useAlt = aim && Vector3.Distance(gun.transform.localPosition, targetPos) <= 0.01f;
+
+        GunData gd = gun.gunData;
+        if (useAlt)
+        {
+            recoilAnimation.SetRecoil(gd.altVerticalRecoil, gd.altHorizontalRecoil, gd.altRecoilRecoveryDampening, gd.altSnappiness);
+            gun.AlternateFire(useAmmo, gun.gunData.ammoPerAltShot);
+        }
+        else 
+        {
+            recoilAnimation.SetRecoil(gd.verticalRecoil, gd.horizontalRecoil, gd.recoilRecoveryDampening, gd.snappiness);
+            gun.Fire(useAmmo, gun.gunData.ammoPerShot); 
+        }
+
+        gun.SetIsFiring(true);
+
+        float rate = useAlt ? gun.gunData.altFireRate : gun.gunData.fireRate;
+        nextFireTime = Time.time + 1f / rate;
     }
 }

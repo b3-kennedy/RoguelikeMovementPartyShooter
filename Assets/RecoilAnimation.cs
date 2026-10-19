@@ -38,6 +38,14 @@ public class RecoilAnimation : MonoBehaviour
         recoilRecoveryDampening = gunData.recoilRecoveryDampening;
         snappiness = gunData.snappiness;
     }
+    
+    public void SetRecoil(float h, float v, float rrd, float s)
+    {
+        horizontalRecoil = h;
+        verticalRecoil = v;
+        recoilRecoveryDampening = rrd;
+        snappiness = s;
+    }
 
     public void Recoil()
     {
