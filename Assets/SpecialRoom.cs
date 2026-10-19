@@ -19,7 +19,6 @@ public class SpecialRoom : NetworkBehaviour
     {
         if (IsServer)
         {
-            GameManager.Instance.IsPaused(true);
             foreach (var spawner in weaponSpawners)
             {
                 spawner.SpawnWeapon();

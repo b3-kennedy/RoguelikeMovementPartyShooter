@@ -86,7 +86,8 @@ MonoBehaviour:
     - {fileID: 8567076790228387223, guid: bc930cdd64336374bb8bfe081055e107, type: 3}
     - {fileID: 4284779014700651574, guid: 179b60a1a2f388d42ba1a0f6f361b2c9, type: 3}
   - tier: 1
-    weapons: []
+    weapons:
+    - {fileID: 8666325731493319107, guid: 77a6ac5bcda5e884dad6bb2a0cd19f91, type: 3}
   - tier: 2
     weapons: []
   - tier: 3

@@ -3533,7 +3533,7 @@ MonoBehaviour:
   exitDoors:
   - {fileID: 3332219702467455309}
   - {fileID: 7994282116535441986}
-  canHaveGuns: 0
+  canHaveGuns: 1
   turnLightNormal: 0
   pauseTimerOnEnter: 1
 --- !u!114 &5243260596579004537

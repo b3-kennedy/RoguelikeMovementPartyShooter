@@ -121,13 +121,14 @@ public class WeaponSpawner : NetworkBehaviour
     public void SpawnWeaponRpc(Vector3 position, int gunID)
     {
         GameObject prefab = GameManager.Instance.guns[gunID].pickupObject;
-        if (prefab != null && spawnedWeapon != null)
-        {
-            spawnedWeapon = Instantiate(prefab, position, Quaternion.identity);
-            spawnedWeapon.GetComponent<Rigidbody>().isKinematic = true;
-            spawnedWeapon.GetComponent<GunReferenceHolder>().SetPickupInstanceID(GameManager.Instance.nextPickupID);
-            GameManager.Instance.nextPickupID++;
-        }
+        if (!prefab) return;
+
+        if (spawnedWeapon) Destroy(spawnedWeapon);
+
+        spawnedWeapon = Instantiate(prefab, position, Quaternion.identity);
+        spawnedWeapon.GetComponent<Rigidbody>().isKinematic = true;
+        spawnedWeapon.GetComponent<GunReferenceHolder>().SetPickupInstanceID(GameManager.Instance.nextPickupID);
+        GameManager.Instance.nextPickupID++;
     }
 
     private float GetTableValue(WeaponTier.Tier tier, float points)
