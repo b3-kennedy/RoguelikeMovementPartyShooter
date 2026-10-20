@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: -1341163892214694444}
   - component: {fileID: 6367603476110234974}
   - component: {fileID: -7710426267055652655}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,6 +211,11 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   gunHolder: {fileID: 0}
+  collectableLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  interactablePullForce: 5
+  liftAmount: 2
 --- !u!114 &-2888443511851020012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,7 +335,7 @@ GameObject:
   - component: {fileID: 2169898605046620347}
   - component: {fileID: 6019790408752522868}
   - component: {fileID: 1810044700687636929}
-  m_Layer: 7
+  m_Layer: 8
   m_Name: PlayerObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}

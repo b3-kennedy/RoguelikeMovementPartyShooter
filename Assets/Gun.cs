@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+using DiabolicalGames;
 public class Gun : MonoBehaviour
 {
 
@@ -140,27 +141,10 @@ public class Gun : MonoBehaviour
 
         if (!CheckReload(useAmmo ? ammoLoss : 0)) return;
 
-        Vector3 end = cam.transform.position + cam.transform.forward * 500f;
-
-        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, Mathf.Infinity, ~layerMask))
-        {
-            Health health = hit.collider.GetComponent<Health>();
-            end = hit.point;
-            if(health)
-            {
-                health.TakeDamageRpc(gunData.damage);
-            }
-            
-            
-            if(hit.collider.CompareTag("Target"))
-            {
-                var targetObj = hit.collider.GetComponent<NetworkObject>();
-                targetObj.GetComponent<RedTarget>().OnHitServerRpc(NetworkManager.Singleton.LocalClientId);
-            }
-        }
+        RaycastShoot();
 
         UpdateAmmoUI(useAmmo, ammoLoss);
-        OnShotFired(muzzle ? muzzle.position : cam.transform.position, end);
+
 
 
 
@@ -190,6 +174,9 @@ public class Gun : MonoBehaviour
 
 
         if (!CheckReload(useAmmo ? ammoLoss : 0)) return;
+
+        RaycastShoot();
+
         UpdateAmmoUI(useAmmo, ammoLoss);
 
 
@@ -202,6 +189,37 @@ public class Gun : MonoBehaviour
         }
         recoilAnimation.Recoil();
 
+    }
+    
+    void RaycastShoot()
+    {
+        Vector3 end = cam.transform.position + cam.transform.forward * 500f;
+
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, ~layerMask))
+        {
+            Health health = hit.collider.GetComponent<Health>();
+            DestructibleObject destructibleObject = hit.collider.GetComponent<DestructibleObject>();
+            end = hit.point;
+            if (health)
+            {
+                health.TakeDamageRpc(gunData.damage);
+            }
+
+            if (destructibleObject)
+            {
+                destructibleObject.BreakRpc(false, hit.point, ray.direction);
+            }
+
+            if (hit.collider.CompareTag("Target"))
+            {
+                var targetObj = hit.collider.GetComponent<NetworkObject>();
+                targetObj.GetComponent<RedTarget>().OnHitServerRpc(NetworkManager.Singleton.LocalClientId);
+            }
+
+            
+        }
+        OnShotFired(muzzle ? muzzle.position : cam.transform.position, end);
     }
 
     bool CheckReload(int ammoLoss)

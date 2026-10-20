@@ -12,9 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7608e025746142744b6a95de84b9ab6b, type: 3}
   m_Name: AimTrainPistol
   m_EditorClassIdentifier: 
+  gunType: 0
+  ammoPerShot: 1
+  ammoPerAltShot: 1
+  gunName: 
   fireType: 0
   magSize: 999
   fireRate: 20
+  altFireRate: 0
   damage: 10
   adsSpeed: 10
   reloadTime: 1
@@ -23,9 +28,7 @@ MonoBehaviour:
   horizontalRecoil: 1
   recoilRecoveryDampening: 5
   snappiness: 5
-  shootAnimations:
-  - {fileID: 7400000, guid: 96d30905093c094478ecaca4aabb7c4e, type: 2}
-  - {fileID: 7400000, guid: 5e9c05045d79ed64f8de9bbd7d7beb30, type: 2}
-  - {fileID: 7400000, guid: d76110767ccea0046a491017aa4f321b, type: 2}
-  reloadAnimation: {fileID: 7400000, guid: 97f53c6540c7d2048b8af510f6255250, type: 2}
-  sprintAnimation: {fileID: 7400000, guid: a5700733a06113c41a37676981d1d348, type: 2}
+  altVerticalRecoil: 2
+  altHorizontalRecoil: 1
+  altRecoilRecoveryDampening: 5
+  altSnappiness: 5

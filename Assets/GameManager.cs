@@ -134,6 +134,10 @@ public class GameManager : NetworkBehaviour
         {
             Destroy(gameObject);
         }
+
+        Physics.IgnoreLayerCollision(7, 8); //points collectables with player
+        Physics.IgnoreLayerCollision(8, 9); //player with crate debris
+        
     }
     
     

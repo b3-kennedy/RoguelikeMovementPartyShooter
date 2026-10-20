@@ -6,4 +6,9 @@ public class TestGun : Gun
     {
         base.Fire(useAmmo, gunData.ammoPerShot);
     }
+
+    public override void AlternateFire(bool useAmmo, int ammoLoss, bool canRecoil)
+    {
+        base.Fire(useAmmo, gunData.ammoPerAltShot);
+    }
 }

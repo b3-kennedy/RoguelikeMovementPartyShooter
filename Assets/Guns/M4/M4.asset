@@ -19,7 +19,7 @@ MonoBehaviour:
   fireType: 1
   magSize: 30
   fireRate: 10
-  altFireRate: 0
+  altFireRate: 10
   damage: 10
   adsSpeed: 10
   reloadTime: 1

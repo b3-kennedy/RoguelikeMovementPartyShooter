@@ -40,9 +40,14 @@ public class Interact : NetworkBehaviour
     [HideInInspector] public Transform gunHolder;
     private FirstPersonRigidbodyController controller;
 
+    Collider[] colliders;
+    public LayerMask collectableLayer;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        colliders = new Collider[25];
         pushToTalkController = GetComponent<PushToTalkController>();
         throwUI = GameManager.Instance.throwUI;
         throwUI.SetActive(false);
@@ -138,6 +143,11 @@ public class Interact : NetworkBehaviour
         }
     }
 
+    void FixedUpdate()
+    {
+        AreaCheck();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -147,6 +157,7 @@ public class Interact : NetworkBehaviour
 
         TerminalInteraction();
         Throw();
+        
 
         if (gunHolder.childCount > 0)
         {
@@ -380,6 +391,22 @@ public class Interact : NetworkBehaviour
             {
                 DespawnHeldObjectRpc(heldPickupable.GetComponent<NetworkObject>().NetworkObjectId);
             }
+        }
+    }
+    
+    void AreaCheck()
+    {
+        int count = Physics.OverlapSphereNonAlloc(transform.position, 10f, colliders, collectableLayer);
+
+        for (int i = count - 1; i >= 0; i--)
+        {
+            Collider col = colliders[i];
+            PointsCollectable pointsCollectable = col.GetComponent<PointsCollectable>();
+            if (pointsCollectable.player == null)
+            {
+                pointsCollectable.player = gameObject;
+            }
+            
         }
     }
 

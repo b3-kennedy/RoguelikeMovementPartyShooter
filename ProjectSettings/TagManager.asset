@@ -23,9 +23,9 @@ TagManager:
   - Water
   - UI
   - Barrier
-  - 
-  - 
-  - 
+  - PointCollectable
+  - Player
+  - CrateDebris
   - 
   - 
   - 
