@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Analytics;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerGunManager : NetworkBehaviour
 {
@@ -40,6 +41,9 @@ public class PlayerGunManager : NetworkBehaviour
     bool useAmmo = true;
 
     static readonly string[] gunLayers = { "Pistol", "Rifle", "Shotgun", "Sniper", "SMG" };
+
+    TwoBoneIKConstraint rightArm;
+    TwoBoneIKConstraint leftArm;
     
     void Start()
     {
@@ -211,6 +215,15 @@ public class PlayerGunManager : NetworkBehaviour
         SwitchWeaponRpc(GetActiveGunIndex(), OwnerClientId);
         ammoUI.gunName.text = GetActiveGun().gunData.gunName;
         ammoUI.ammoText.text = GetActiveGun().GetAmmo().ToString() + " / " + GetActiveGun().gunData.magSize;
+
+        rightArm = gun.transform.parent.root.GetComponentInChildren<RightArm>().GetComponent<TwoBoneIKConstraint>();
+        leftArm = gun.transform.parent.root.GetComponentInChildren<LeftArm>().GetComponent<TwoBoneIKConstraint>();
+        var rigBuilder = gun.transform.root.GetComponentInChildren<RigBuilder>();
+        rightArm.data.target = gun.rightHandPos;
+        leftArm.data.target = gun.leftHandPos;
+        rigBuilder.Build();
+
+        Debug.Log($"EquipGun {g.name} frame {Time.frameCount} owner {IsOwner}", this);
     }
 
     public void SetGunsVisible(bool visible)

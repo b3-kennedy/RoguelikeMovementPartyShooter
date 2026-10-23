@@ -4,7 +4,7 @@ using UnityEngine;
 public class PointsCollectable : NetworkBehaviour
 {
     public int pointValue;
-    public GameObject player;
+    [HideInInspector] public GameObject player;
 
     public float pullForce = 5f;
     public float liftAmount = 2f;
@@ -27,6 +27,7 @@ public class PointsCollectable : NetworkBehaviour
             rb.linearVelocity = force;
             if(distance <= 0.5f && IsServer)
             {
+                GameManager.Instance.points.Value += pointValue;
                 GetComponent<NetworkObject>().Despawn();
             }
         }

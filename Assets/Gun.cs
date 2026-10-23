@@ -22,6 +22,9 @@ public class Gun : MonoBehaviour
 
     public Transform muzzle;
 
+    public Transform rightHandPos;
+    public Transform leftHandPos;
+
     bool isFiring;
 
     LayerMask layerMask;

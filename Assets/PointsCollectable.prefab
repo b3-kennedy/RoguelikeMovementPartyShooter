@@ -154,7 +154,7 @@ MonoBehaviour:
   player: {fileID: 0}
   pullForce: 5
   liftAmount: 0.25
-  distanceMultiplier: 0.5
+  distanceMultiplier: 0.1
 --- !u!54 &7640906380964945759
 Rigidbody:
   m_ObjectHideFlags: 0

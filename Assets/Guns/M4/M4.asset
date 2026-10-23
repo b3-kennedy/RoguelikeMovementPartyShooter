@@ -23,12 +23,12 @@ MonoBehaviour:
   damage: 10
   adsSpeed: 10
   reloadTime: 1
-  adsPos: {x: -0.487, y: 0.256, z: -0.726}
-  verticalRecoil: 10
-  horizontalRecoil: 1
+  adsPos: {x: -0.144, y: 0.066, z: -0.233}
+  verticalRecoil: 1
+  horizontalRecoil: 5
   recoilRecoveryDampening: 5
   snappiness: 5
-  altVerticalRecoil: 10
-  altHorizontalRecoil: 1
+  altVerticalRecoil: 1
+  altHorizontalRecoil: 5
   altRecoilRecoveryDampening: 5
   altSnappiness: 5

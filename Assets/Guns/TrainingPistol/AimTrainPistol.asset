@@ -19,11 +19,11 @@ MonoBehaviour:
   fireType: 0
   magSize: 999
   fireRate: 20
-  altFireRate: 0
+  altFireRate: 20
   damage: 10
   adsSpeed: 10
   reloadTime: 1
-  adsPos: {x: -0.262, y: 0.16, z: -0.217}
+  adsPos: {x: -0.175, y: 0.108, z: -0.207}
   verticalRecoil: 2
   horizontalRecoil: 1
   recoilRecoveryDampening: 5
