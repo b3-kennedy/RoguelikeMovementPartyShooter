@@ -44,6 +44,8 @@ public class PlayerGunManager : NetworkBehaviour
 
     TwoBoneIKConstraint rightArm;
     TwoBoneIKConstraint leftArm;
+
+    RigBuilder rigBuilder;
     
     void Start()
     {
@@ -180,6 +182,11 @@ public class PlayerGunManager : NetworkBehaviour
             gun = null;
             anim = null;
             recoilAnimation = null;
+            if (rigBuilder) rigBuilder.enabled = false;
+            leftArm.gameObject.SetActive(false);
+            rightArm.gameObject.SetActive(false);
+            leftArm = null;
+            rightArm = null;
         }
     }
 
@@ -216,14 +223,15 @@ public class PlayerGunManager : NetworkBehaviour
         ammoUI.gunName.text = GetActiveGun().gunData.gunName;
         ammoUI.ammoText.text = GetActiveGun().GetAmmo().ToString() + " / " + GetActiveGun().gunData.magSize;
 
-        rightArm = gun.transform.parent.root.GetComponentInChildren<RightArm>().GetComponent<TwoBoneIKConstraint>();
-        leftArm = gun.transform.parent.root.GetComponentInChildren<LeftArm>().GetComponent<TwoBoneIKConstraint>();
-        var rigBuilder = gun.transform.root.GetComponentInChildren<RigBuilder>();
+        rightArm = gun.transform.parent.root.GetComponentInChildren<RightArm>(true).GetComponent<TwoBoneIKConstraint>();
+        leftArm = gun.transform.parent.root.GetComponentInChildren<LeftArm>(true).GetComponent<TwoBoneIKConstraint>();
+        rigBuilder = gun.transform.root.GetComponentInChildren<RigBuilder>(true);
+        rigBuilder.enabled = true;
+        leftArm.gameObject.SetActive(true);
+        rightArm.gameObject.SetActive(true);
         rightArm.data.target = gun.rightHandPos;
         leftArm.data.target = gun.leftHandPos;
         rigBuilder.Build();
-
-        Debug.Log($"EquipGun {g.name} frame {Time.frameCount} owner {IsOwner}", this);
     }
 
     public void SetGunsVisible(bool visible)
