@@ -43,6 +43,11 @@ public class Interact : NetworkBehaviour
     Collider[] colliders;
     public LayerMask collectableLayer;
 
+    Rigidbody rb;
+
+    [SerializeField] private float snapWindow = 0.1f;
+    float snapWindowTimer;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -54,11 +59,13 @@ public class Interact : NetworkBehaviour
         throwBar = GameManager.Instance.throwUI.transform.GetChild(1);
         throwBar.localScale = new Vector3(1, 0, 1);
         playerGunManager = GetComponent<PlayerGunManager>();
+        
     }
 
     public override void OnNetworkSpawn()
     {
         controller = GetComponent<FirstPersonRigidbodyController>();
+        rb = GetComponent<Rigidbody>();
         controller.playerCameraRef.OnValueChanged += OnCameraAssigned;
         TryResolveCamera();
     }
@@ -380,6 +387,16 @@ public class Interact : NetworkBehaviour
         if (other.CompareTag("LeftPathComplete"))
         {
             other.GetComponentInParent<PathRoom>().SetLeftPathCompleteRpc();
+        }
+
+        MomentumBoost boost = other.GetComponent<MomentumBoost>();
+        if (boost && controller.IsOwner || !controller.IsGrounded())
+        {
+            Vector3 hv = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+            Vector3 dir = hv.sqrMagnitude > 0.01f ? hv.normalized : controller.transform.forward;
+
+            controller.ApplyImpulse(dir * boost.momentumBoost);
+            boost.Disable();
         }
     }
 

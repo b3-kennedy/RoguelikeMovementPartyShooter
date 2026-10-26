@@ -93,6 +93,18 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     [SerializeField] private float flatLandAngle = 5f;   // max slope angle that counts as "flat"
     [SerializeField] private float ceilingCheckDistance = 0.25f;
 
+    [Header("Slide Ground Snap")]
+    [SerializeField] private float minSnapDistance = 0.3f;
+    [SerializeField] private float maxSnapDistance = 0.6f;
+
+    float boostGraceTimer;
+    [SerializeField] private float boostGraceTime = 0.75f;
+
+    float momentumBonus;
+
+    [SerializeField] private float snapWindow = 0.1f;
+    float snapWindowTimer;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -212,6 +224,58 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
     public bool IsSprinting()
     {
         return isSprinting;
+    }
+    
+    public bool IsSliding()
+    {
+        return isSliding;
+    }
+    
+    public bool IsGrounded()
+    {
+        return isGrounded;
+    }
+    
+    public Rigidbody GetRigidbody()
+    {
+        return rb;
+    }
+
+    public void ApplyRecoil(Vector3 impulse)
+    {
+        if (!IsOwner) return;
+
+        if (isSliding)
+        {
+            Vector3 newVel = rb.linearVelocity + impulse;
+            Vector3 hv = new Vector3(newVel.x, 0f, newVel.z);
+
+            if (hv.sqrMagnitude > 0.01f)
+            {
+                slideDir = hv.normalized;
+                slideSpeed = hv.magnitude;
+            }
+
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, newVel.y, rb.linearVelocity.z);
+        }
+        else
+        {
+            rb.AddForce(impulse, ForceMode.VelocityChange);
+        }
+    }
+
+    public void ApplyImpulse(Vector3 impulse)
+    {
+        if (isSliding)
+        {
+            slideSpeed += Mathf.Max(0f, Vector3.Dot(new Vector3(impulse.x, 0f, impulse.z), slideDir));
+            boostGraceTimer = boostGraceTime;
+            Debug.Log($"Impulse | sliding: {isSliding}, slideSpeed before: {slideSpeed}");
+        }
+        else
+        {
+            rb.AddForce(impulse, ForceMode.VelocityChange);
+        }
     }
 
     private void Update()
@@ -376,9 +440,22 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
 
         wasGrounded = isGrounded;
         CheckGrounded();
-       
 
-    
+        if (isSliding && wasGrounded && !isGrounded && groundLockTimer <= 0f && rb.linearVelocity.y <= 0.1f)
+        {
+            snapWindowTimer = snapWindow;
+        }
+
+        if (snapWindowTimer > 0f)
+        {
+            snapWindowTimer -= Time.fixedDeltaTime;
+
+            if (!isSliding || isGrounded || groundLockTimer > 0f)
+                snapWindowTimer = 0f;
+            else if (rb.linearVelocity.y <= 0.1f)
+                TrySnapToGround();
+        }
+
         if (!isGrounded)
         {
             // Record before the physics engine zeroes it on impact
@@ -414,6 +491,58 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
             float minSlide = HasCeiling() ? moveSpeed * 0.5f : 0f;
             slideSpeed = Mathf.Max(slideSpeed - impactSpeed * slideLandingLoss, minSlide);
         }
+    }
+
+    bool TrySnapToGround()
+    {
+        float castRadius = Mathf.Max(0.01f, capsuleRadius - skinWidth);
+        float halfHeight = Mathf.Max(castRadius, col.height * 0.5f - capsuleRadius);
+
+        Vector3 center = transform.position + col.center;
+        Vector3 top = center + Vector3.up * halfHeight;
+        Vector3 bottom = center - Vector3.up * (halfHeight - skinWidth);
+
+        // Fixed reach (Fix 1)
+        float snapDist = maxSnapDistance;
+
+        RaycastHit[] hits = Physics.CapsuleCastAll(top, bottom, castRadius, Vector3.down, snapDist,
+            Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+
+        float closest = float.MaxValue;
+        RaycastHit best = default;
+        foreach (var hit in hits)
+        {
+            if (hit.collider == col || hit.collider.transform.IsChildOf(transform)) continue;
+            if (hit.distance <= 0f) continue; // overlapping hits have no useful normal
+            if (Vector3.Angle(hit.normal, Vector3.up) > maxSlopeAngle) continue;
+            if (hit.distance < closest) { closest = hit.distance; best = hit; }
+        }
+
+        // Capsule cast found nothing usable: fall back to a ray from the capsule centre (Fix 3)
+        if (closest == float.MaxValue)
+        {
+            Vector3 origin = transform.position + col.center;
+            float reach = col.height * 0.5f + snapDist;
+
+            if (Physics.Raycast(origin, Vector3.down, out RaycastHit rh, reach,
+                    Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)
+                && !rh.collider.transform.IsChildOf(transform)
+                && Vector3.Angle(rh.normal, Vector3.up) <= maxSlopeAngle)
+            {
+                float gap = rh.distance - col.height * 0.5f;
+                rb.position += Vector3.down * Mathf.Max(0f, gap - skinWidth);
+                isGrounded = true;
+                groundNormal = rh.normal;
+                return true;
+            }
+
+            return false;
+        }
+
+        rb.position += Vector3.down * Mathf.Max(0f, closest - skinWidth);
+        isGrounded = true;
+        groundNormal = best.normal;
+        return true;
     }
 
     private void HandleSlideSteering()
@@ -498,25 +627,22 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
 
             if (isGrounded)
             {
-                float accel = slopeGain - slideDeceleration;
+                if (boostGraceTimer > 0f) boostGraceTimer -= Time.fixedDeltaTime;
 
+                float decel = boostGraceTimer > 0f ? 0f : slideDeceleration;
+                float accel = slopeGain - decel;
+
+                float prevSpeed = slideSpeed;
                 slideSpeed += accel * Time.fixedDeltaTime;
 
-                // Only cap speed when gaining speed.
                 if (accel > 0f)
                 {
-                    slideSpeed = Mathf.Min(
-                        slideSpeed,
-                        maxSlideSpeed
-                    );
+                    slideSpeed = Mathf.Min(slideSpeed, Mathf.Max(maxSlideSpeed, prevSpeed));
                 }
 
-                slideSpeed = Mathf.Max(
-                    slideSpeed,
-                    minSlide
-                );
+                slideSpeed = Mathf.Max(slideSpeed, minSlide);
             }
-            
+
 
             if (!isGrounded && !HasCeiling())
             {
@@ -626,7 +752,7 @@ public class FirstPersonRigidbodyController : NetworkBehaviour
         {
             move = Vector3.ProjectOnPlane(move, groundNormal).normalized;
 
-            Vector3 targetVel = move * moveSpeed * sprMultiplier;
+            Vector3 targetVel = move * (moveSpeed * sprMultiplier);
 
             rb.linearVelocity = targetVel;
         }

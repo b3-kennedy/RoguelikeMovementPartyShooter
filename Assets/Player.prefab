@@ -83,7 +83,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   playerObject: {fileID: 6853803485330434740}
   moveSpeed: 5
-  sprintJumpBoost: 1.3
+  sprintJumpBoost: 1
   jumpForce: 5
   sprintMultiplier: 2
   airAcceleration: 8
@@ -118,6 +118,10 @@ MonoBehaviour:
   minSlideLandSpeed: 4
   flatLandAngle: 5
   ceilingCheckDistance: 0.25
+  minSnapDistance: 0.01
+  maxSnapDistance: 2
+  boostGraceTime: 0.75
+  snapWindow: 0.1
 --- !u!54 &4022971687466610310
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -214,8 +218,7 @@ MonoBehaviour:
   collectableLayer:
     serializedVersion: 2
     m_Bits: 128
-  interactablePullForce: 5
-  liftAmount: 2
+  snapWindow: 0.1
 --- !u!114 &-2888443511851020012
 MonoBehaviour:
   m_ObjectHideFlags: 0

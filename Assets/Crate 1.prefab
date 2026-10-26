@@ -151,13 +151,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3713066678
+  GlobalObjectIdHash: 1262603715
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  m_InScenePlaced: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -197,7 +197,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: dc7724320e7f5a34d994515d42ac1cb9, type: 3}
   - {fileID: 8300000, guid: 9c9202f6f00d04c489a7eab8d91cc942, type: 3}
   - {fileID: 8300000, guid: 43119588cb2c1da4dbbb021a1151f9dd, type: 3}
-  volume: 0.5
+  volume: 0.1
   volumeVariation: 0.1
   pitchVariation: 0.25
   shotForce: 8

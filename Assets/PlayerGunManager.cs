@@ -61,6 +61,7 @@ public class PlayerGunManager : NetworkBehaviour
         newGun.SetCamera(cam);
         newGun.GetComponentInChildren<GunBob>().enabled = true;
         newGun.SetAmmo(ammo);
+        newGun.SetPlayerController(GetComponent<FirstPersonRigidbodyController>());
         ammoUI.gunName.text = newGun.gunData.gunName;
         ammoUI.ammoText.text = ammo.ToString() + " / " + newGun.gunData.magSize;
 
@@ -204,7 +205,7 @@ public class PlayerGunManager : NetworkBehaviour
         anim.keepAnimatorStateOnDisable = true;
         recoilAnimation = gun.GetComponentInParent<RecoilAnimation>();
         recoilAnimation.SetPlayerGunManager(this);
-        
+        gun.OnEquipped();
         bob = gun.GetComponentInChildren<GunBob>(true);
         if(bob)
         {

@@ -31,6 +31,8 @@ public class Gun : MonoBehaviour
 
     AmmoUI ammoUI;
 
+    FirstPersonRigidbodyController controller;
+
     bool canFire = true;
 
     void Start()
@@ -55,6 +57,16 @@ public class Gun : MonoBehaviour
         isReloading = false;
         isFiring = false;
         canFire = false;
+    }
+    
+    public void SetPlayerController(FirstPersonRigidbodyController c)
+    {
+        controller = c;
+    }
+    
+    public FirstPersonRigidbodyController GetPlayerController()
+    {
+        return controller;
     }
         
     public void SetHidden(bool value)
@@ -132,6 +144,11 @@ public class Gun : MonoBehaviour
         isReloading = false;
         anim.SetBool("Reload", false);
         GameManager.Instance.EnableReloadUI(false);
+    }
+    
+    public virtual void OnEquipped()
+    {
+        
     }
 
     protected virtual void OnShotFired(Vector3 start, Vector3 end) { }
