@@ -24,6 +24,8 @@ public class GameManager : NetworkBehaviour
     public GameObject[] rooms;
     
     public GameObject[] specialRooms;
+
+    public GameObject[] connectionRooms;
     public GunAndPickup[] guns;
     List<GameObject> spawnedRooms = new List<GameObject>();
 
@@ -293,7 +295,7 @@ public class GameManager : NetworkBehaviour
         else if (roomNumber > 0 && spawnSpecialRoom)
         {
             GameObject specialRoomPrefab = specialRooms[Random.Range(0, specialRooms.Length)];
-            Vector3 nextSpawn = spawnedRooms[roomNumber - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
+            Vector3 nextSpawn = spawnedRooms[spawnedRooms.Count - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
             GameObject roomInstance = Instantiate(specialRoomPrefab, nextSpawn, Quaternion.identity);
             roomInstance.GetComponent<NetworkObject>().Spawn();
             spawnedRooms.Add(roomInstance);
@@ -301,12 +303,21 @@ public class GameManager : NetworkBehaviour
         }
         else
         {
-            Vector3 nextSpawn = spawnedRooms[roomNumber - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
+            Vector3 nextSpawn = spawnedRooms[spawnedRooms.Count - 1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
             GameObject roomInstance = Instantiate(roomPrefab, nextSpawn, Quaternion.identity);
             roomInstance.GetComponent<NetworkObject>().Spawn();
             spawnedRooms.Add(roomInstance);
         }
+
+        Vector3 connectionSpawn = spawnedRooms[spawnedRooms.Count-1].GetComponent<RoomConnectionPoint>().connectionPoint.position;
+        GameObject connectionRoom = connectionRooms[Random.Range(0, connectionRooms.Length)];
+        GameObject connectionInstance = Instantiate(connectionRoom, connectionSpawn, Quaternion.identity);
+        connectionInstance.GetComponent<NetworkObject>().Spawn();
+        spawnedRooms.Add(connectionInstance);
+
         roomNumber++;
+
+
     }
 
     public void SetLocalPlayerCamera(Camera camera)
